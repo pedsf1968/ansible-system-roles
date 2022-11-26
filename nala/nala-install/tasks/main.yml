@@ -1,0 +1,21 @@
+---
+# tasks file for nala-install
+- name: "APT update server"
+  apt:
+    upgrade: no
+    update_cache: yes
+    cache_valid_time: 86400
+
+- name: "Package install"
+  package:
+    name: [ "nala" ]
+    state: latest
+    update_cache: true
+
+- name: "Nala update"
+  ansible.builtin.command: nala update
+
+- name: "Nala upgrade"
+  ansible.builtin.command: nala upgrade -y
+
+  

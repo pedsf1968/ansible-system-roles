@@ -1,0 +1,15 @@
+---
+# tasks file to install common packages with Nala
+- name: "Nala update"
+  ansible.builtin.command: nala update
+
+- name: "Install common packages with Nala"
+  ansible.builtin.command:
+    argv: 
+    - nala 
+    - install 
+    - -y
+    - python3-pip
+    - tree
+    - htop
+    - nfs-common

@@ -1,0 +1,6 @@
+---
+# tasks file for Nala update command
+- name: "Nala update"
+  ansible.builtin.command: nala update
+
+  
