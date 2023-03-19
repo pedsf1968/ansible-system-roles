@@ -1,0 +1,21 @@
+---
+# Generate certificate Playbook
+
+########################################################################## INIT
+- name: "Generate certificates"
+  hosts: [etcds]
+  gather_facts: true
+
+
+- name: "Generate certificates"
+  hosts: isa-server
+  gather_facts: false
+  vars_prompt:
+  - name: secret_ca_passphrase
+    prompt: CA certificate passphrase
+  vars:
+    certificate_names: "{{ groups['etcds'] }}"
+  roles:
+    - role: "system/certificate/certificate-create"
+
+  

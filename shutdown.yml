@@ -1,0 +1,13 @@
+---
+# Shutdown cluster and admin server Playbook
+
+- name: "Get VM"
+  hosts: all
+  gather_facts: true
+
+- name: "Halt cluster"
+  hosts: all
+  become: yes
+  gather_facts: false
+  roles:
+    - role: "system/shutdown"

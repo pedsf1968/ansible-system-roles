@@ -71,8 +71,6 @@ Sign CSR and generate certificate for target
 
 ## certificate-create-simple
 
-
-
 # OpenSSL
 ## openssl-passfile-create
 Generate passphrase file to use with OpenSSL locally

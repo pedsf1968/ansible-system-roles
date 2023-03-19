@@ -1,0 +1,7 @@
+---
+# Packages upgrade with nala
+- name: "Lanch nala upgrade"
+  hosts: "all"
+  become: yes
+  roles:
+  - role: "system/nala/nala-upgrade"

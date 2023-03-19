@@ -1,0 +1,10 @@
+---
+# Generate CA certificate
+- name: "Generate CA certificate"
+  hosts: isa-server
+  gather_facts: false
+  vars_prompt:
+  - name: secret_ca_passphrase
+    prompt: CA certificate passphrase
+  roles:
+    - role: "system/certificate/ca-create"
