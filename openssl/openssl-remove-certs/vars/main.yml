@@ -1,0 +1,8 @@
+---
+# vars file for openssl-create-key
+certificate_directory: "/home/ansible/ca"
+certificate_private_directory: "{{ certificate_directory }}/private"
+certificate_certs_directory: "{{ certificate_directory }}/certs"
+certificate_csr_directory: "{{ certificate_directory }}/csr"
+certificate_crl_directory: "{{ certificate_directory }}/crl"
+certificate_newcerts_directory: "{{ certificate_directory }}/newcerts"

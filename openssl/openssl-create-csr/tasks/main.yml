@@ -1,0 +1,35 @@
+---
+# tasks file for openssl-create-csr
+# need to generate key before with certificate-create-key
+
+- name: "Create directory for CSR"
+  ansible.builtin.file:
+    path: "{{ certificate_csr_directory }}/{{ item }}"
+    state: directory
+    mode: '0700'
+  when: ansible_hostname == admin_hostname  
+  with_items: "{{ certificate_host_list }}"
+
+- name: "Generate CSR configuration on CSR directory"
+  ansible.builtin.template:
+    src: "openssl.conf.j2"
+    dest: "{{ certificate_csr_directory }}/{{ item }}/openssl.conf"
+    owner: "{{ admin_username }}"
+    group: "{{ admin_username }}"
+    mode: "0600"
+  when: ansible_hostname == admin_hostname
+  with_items: "{{ certificate_host_list }}"
+
+- name: "Create CSR"
+  ansible.builtin.command: openssl req -new -passin file:passphrase.txt -key "{{ certificate_private_directory }}/{{ item }}/{{ certificate_name }}.key" -config "{{ certificate_csr_directory }}/{{ item }}/openssl.conf" -batch -out "{{ certificate_csr_directory }}/{{ item }}/{{ certificate_name }}.csr"
+  args:
+    chdir: "{{ certificate_directory }}"
+  when: ansible_hostname == admin_hostname
+  with_items: "{{ certificate_host_list }}"
+
+- name: "Change right for CSR file"
+  ansible.builtin.file:
+    path: "{{ certificate_csr_directory }}/{{ item }}/{{ certificate_name }}.csr"
+    mode: "0444"
+  when: ansible_hostname == admin_hostname
+  with_items: "{{ certificate_host_list }}"

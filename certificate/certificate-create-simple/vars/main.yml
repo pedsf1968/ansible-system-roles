@@ -1,0 +1,12 @@
+---
+# vars file for certificate-create
+# vars file for ca-create
+certificate_ca_name: ca-certificate
+ca_directory: /home/ansible/ca
+ca_private_directory: "{{ ca_directory }}/private"
+ca_certs_directory: "{{ ca_directory }}/certs"
+ca_csr_directory: "{{ ca_directory }}/csr"
+ca_newcerts_directory: "{{ ca_directory }}/newcerts"
+
+certificate_type: RSA
+certificate_size: 4096

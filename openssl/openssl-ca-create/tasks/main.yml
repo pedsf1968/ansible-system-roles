@@ -1,0 +1,67 @@
+---
+# tasks file for openssl-ca-create
+- name: "Delete OLD certificates and keys"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{ certificate_private_directory }}/{{ certificate_ca_name }}.key"
+    - "{{ certificate_certs_directory }}/{{ certificate_ca_name }}.crt"
+
+- name: "Create Cert directory"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0700'
+  with_items:
+    - "{{ certificate_directory }}"
+    - "{{ certificate_private_directory }}"
+    - "{{ certificate_csr_directory }}"
+    - "{{ certificate_crl_directory }}"
+    - "{{ certificate_certs_directory }}"
+    - "{{ certificate_newcerts_directory }}"
+
+- name: "Generate OpenSSL configuration"
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "{{ certificate_directory }}/{{ item }}"
+    owner: "{{ admin_username }}"
+    group: "{{ admin_username }}"
+    mode: "0600"
+  with_items:
+    - openssl.conf
+    - index.txt
+    - serial
+    - passphrase.txt
+
+- name: "Create private key for CA with password protection"
+  ansible.builtin.command: openssl genrsa -aes256 -passout file:passphrase.txt -out {{ certificate_private_directory }}/{{ certificate_ca_name }}.key {{ certificate_ca_size }}
+  args:
+    chdir: "{{ certificate_directory }}"
+
+- name: "Change right for {{ certificate_ca_name }}.key"
+  ansible.builtin.file:
+    path: "{{ certificate_private_directory }}/{{ certificate_ca_name }}.key"
+    mode: "0400"
+
+- name: "Create cert for CA with password protection"
+  ansible.builtin.command: openssl req -config openssl.conf -key "{{ certificate_private_directory }}/{{ certificate_ca_name }}.key" -passin file:passphrase.txt -new -x509 -days "{{ certificate_days }}" -sha256 -extensions v3_ca -out "{{ certificate_certs_directory }}/{{ certificate_ca_name }}.crt" -batch
+  args:
+    chdir: "{{ certificate_directory }}"
+
+- name: "Change right for {{ certificate_ca_name }}.crt"
+  ansible.builtin.file:
+    path: "{{ certificate_certs_directory }}/{{ certificate_ca_name }}.crt"
+    mode: "0444"
+
+- name: "Remove passphrase file"
+  ansible.builtin.file:
+    path: "{{ certificate_directory }}/passphrase.txt"
+    state: absent
+
+- name: "Verification"
+  ansible.builtin.command: openssl x509 -noout -text -in "{{ certificate_certs_directory }}/{{ certificate_ca_name }}.crt"
+  register: command_output
+
+- debug:
+    var: command_output.stdout_lines

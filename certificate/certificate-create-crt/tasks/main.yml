@@ -1,0 +1,22 @@
+---
+# tasks file to sign CSR
+- name: "Create directory for certs"
+  ansible.builtin.file:
+    path: "{{ certificate_certs_directory }}/{{ item }}"
+    state: directory
+    mode: '0700'
+  when: ansible_hostname == admin_hostname
+  with_items: "{{ certificate_host_list }}"
+
+
+- name: "Generate certificate signed with our own CA certificate"
+  community.crypto.x509_certificate:
+    path: "{{ certificate_certs_directory }}/{{ item }}/{{ certificate_name }}.crt"
+    csr_path: "{{ certificate_csr_directory }}/{{ item }}/{{ certificate_name }}.csr"
+    ownca_path: "{{ certificate_certs_directory }}/{{ certificate_ca_name }}.crt"
+    ownca_privatekey_path: "{{ certificate_private_directory }}/{{ certificate_ca_name }}.key"
+    ownca_privatekey_passphrase: "{{ secret_ca_passphrase }}"
+    provider: ownca
+    force: True
+  when: ansible_hostname == admin_hostname
+  with_items: "{{ certificate_host_list }}"

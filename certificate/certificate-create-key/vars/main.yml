@@ -1,0 +1,7 @@
+---
+# vars file for certificate-create-key
+certificate_private_directory: "/home/ansible/ca/private"
+certificate_csr_directory: "/home/ansible/ca/csr"
+certificate_certs_directory: "/home/ansible/ca/certs"
+certificate_type: RSA
+certificate_size: 2048

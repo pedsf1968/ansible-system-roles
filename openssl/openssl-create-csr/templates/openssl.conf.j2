@@ -1,0 +1,52 @@
+[req]
+req_extensions = v3_req
+distinguished_name = req_distinguished_name
+
+[req_distinguished_name]
+
+[ v3_req ]
+basicConstraints = CA:FALSE
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+subjectAltName = @alt_names
+
+[ ssl_client ]
+extendedKeyUsage = clientAuth, serverAuth
+basicConstraints = CA:FALSE
+subjectKeyIdentifier=hash
+authorityKeyIdentifier=keyid,issuer
+subjectAltName = @alt_names
+
+[ v3_ca ]
+basicConstraints = CA:TRUE
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+subjectAltName = @alt_names
+authorityKeyIdentifier=keyid:always,issuer
+
+[ req_distinguished_name ]
+# See <https://en.wikipedia.org/wiki/Certificate_signing_request>.
+countryName                     = "{{ certificate_country }}"
+stateOrProvinceName             = "{{ certificate_state }}"
+localityName                    = "{{ certificate_locality }}"
+0.organizationName              = "{{ certificate_organization_name }}"
+organizationalUnitName          = "{{ certificate_organizational_unit }}"
+commonName                      = "{{ item }}.{{ domain_name }}"
+emailAddress                    = "{{ certificate_email_address }}"
+
+# Optionally, specify some defaults.
+countryName_default             = "{{ certificate_country }}"
+stateOrProvinceName_default     = "{{ certificate_state }}"
+localityName_default            = "{{ certificate_locality }}"
+0.organizationName_default      = "{{ certificate_organization_name }}"
+organizationalUnitName_default  = "{{ certificate_organizational_unit }}"
+emailAddress_default            = "{{ certificate_email_address }}"
+
+
+[alt_names]
+DNS.1 = localhost
+DNS.2 = "{{ item }}"
+DNS.3 = "{{ item }}.{{ domain_name }}"
+DNS.4 = "k8s-etcd-lb-vip"
+DNS.5 = "k8s-etcd-lb-vip.{{ domain_name }}"
+IP.1 = "{{ hostvars[item].ansible_host }}"
+IP.2 = 127.0.0.1
+IP.3 = 10.1.66.30

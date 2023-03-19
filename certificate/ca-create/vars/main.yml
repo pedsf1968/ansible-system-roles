@@ -1,0 +1,15 @@
+---
+# vars file for ca-create
+certificate_directory: "/home/ansible/ca"
+certificate_private_directory: "{{ certificate_directory }}/private"
+certificate_certs_directory: "{{ certificate_directory }}/certs"
+certificate_csr_directory: "{{ certificate_directory }}/csr"
+certificate_newcerts_directory: "{{ certificate_directory }}/newcerts"
+
+certificate_ca_name: ca-certificate
+certificate_ca_common_name: "*.{{ domain_name }}"
+certificate_organization_name: "HawkFund Inc."
+certificate_country: "KR"
+certificate_email_address: pedsf.fullstack@gmail.com
+certificate_ca_type: RSA
+certificate_ca_size: 4096

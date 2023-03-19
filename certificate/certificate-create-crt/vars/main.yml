@@ -1,0 +1,10 @@
+---
+certificate_ca_name: ca-certificate
+certificate_directory: /home/ansible/ca
+certificate_private_directory: "{{ certificate_directory }}/private"
+certificate_csr_directory: "{{ certificate_directory }}/csr"
+certificate_certs_directory: "{{ certificate_directory }}/certs"
+certificate_newcerts_directory: "{{ certificate_directory }}/newcerts"
+
+certificate_type: RSA
+certificate_size: 2048

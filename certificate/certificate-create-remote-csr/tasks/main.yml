@@ -1,0 +1,80 @@
+---
+# tasks file for certificate-create-csr
+# need to generate key before with certificate-create-key
+- name: "Create {{ certificate_directory }} directory"
+  ansible.builtin.file:
+    path: "{{ certificate_directory }}"
+    owner: "{{ certificate_owner }}"
+    group: "{{ certificate_group }}"
+    state: directory
+
+- debug:
+    msg: "{{ certificate_alt_names }}"
+  when: certificate_alt_names is defined
+
+- set_fact:
+    subject_alt_names: "DNS:{{ inventory_hostname }}, DNS:{{ inventory_hostname }}.{{ domain_name }}, IP:{{ hostvars[inventory_hostname].ansible_host }}, IP:127.0.0.1"
+
+- debug:
+    msg: "{{ subject_alt_names }}"
+
+- set_fact:
+    subject_alt_names: "{{ subject_alt_names }}, {% for item in certificate_alt_names.split(',') %} DNS:{{ item }}, DNS:{{ item }}.{{ domain_name }},{% endfor %}"
+  when: certificate_alt_names is defined
+
+- debug:
+    msg: "{{ subject_alt_names }}"
+
+- set_fact:
+    subject_alt_names: "{{ subject_alt_names }} {% for item in certificate_alt_names.split(',') %} IP:{{ hostvars[item].ansible_host }},{% endfor %}"
+  when: certificate_alt_names is defined
+
+- debug:
+    msg: "{{ subject_alt_names }}"
+
+- set_fact:
+    subject_alt_names: "{{ subject_alt_names }}[:-1]"
+
+
+- debug:
+    msg: "{{ subject_alt_names }}"
+
+
+- name: "Generate CSR"
+  community.crypto.openssl_csr:
+    path: "{{ certificate_directory }}/{{ certificate_name }}.csr"
+    privatekey_path: "{{ certificate_directory }}/{{ certificate_name }}.key"
+    privatekey_passphrase: "{{ secret_ca_passphrase }}"
+    common_name: "{{ certificate_name }}"
+    key_usage:
+      - digitalSignature
+    extended_key_usage:
+      - serverAuth
+    subject_alt_name: 
+      - "DNS:{{ inventory_hostname }}"
+      - "DNS:{{ inventory_hostname }}.{{ domain_name }}"
+      - "DNS:k8s-etcd-lb-vip"
+      - "DNS:k8s-etcd-lb-vip.{{ domain_name }}"
+      - "DNS:k8s-etcd-lb-01"
+      - "DNS:k8s-etcd-lb-01.{{ domain_name }}"
+      - "DNS:k8s-etcd-lb-02"
+      - "DNS:k8s-etcd-lb-02.{{ domain_name }}"
+      - "IP:{{ hostvars[inventory_hostname].ansible_host }}"
+      - "IP:127.0.0.1"
+      - "IP:10.1.66.30"
+      - "IP:10.1.66.21"
+      - "IP:10.1.66.22"
+    owner: "{{ certificate_owner }}"
+    group: "{{ certificate_group }}"     
+    mode: '0600'
+    force: True
+  
+  # fetch CSR in ansible certificat directory
+- name: "Fetch {{ certificate_name }}.csr file"
+  ansible.builtin.fetch:
+    src: "{{ certificate_directory }}/{{ certificate_name }}.csr"
+    dest: "{{ ca_csr_directory }}/{{ inventory_hostname }}-{{ certificate_name }}.csr"
+    flat: yes
+    owner: "{{ admin_username }}"
+    group: "{{ admin_username }}"
+    mode: '0600'

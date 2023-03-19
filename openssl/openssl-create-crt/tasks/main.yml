@@ -1,0 +1,33 @@
+---
+# tasks file to sign CSR
+
+- name: "Create directory for certs"
+  ansible.builtin.file:
+    path: "{{ certificate_certs_directory }}/{{ item }}"
+    state: directory
+    mode: '0700'
+  when: ansible_hostname == admin_hostname
+  with_items: "{{ certificate_host_list }}"
+
+- name: "Generate certificate signed with our own CA certificate"
+  ansible.builtin.command: openssl x509 -req -passin file:passphrase.txt -in "{{ certificate_csr_directory }}/{{ item }}/{{ certificate_name }}.csr" -CA "{{ certificate_certs_directory }}/{{ certificate_ca_name }}.crt" -CAkey "{{ certificate_private_directory }}/{{ certificate_ca_name }}.key" -CAcreateserial -out "{{ certificate_certs_directory }}/{{ item }}/{{ certificate_name }}.crt" -days "{{ certificate_days }}" -extensions v3_req -extfile "{{ certificate_csr_directory }}/{{ item }}/openssl.conf"
+  args:
+    chdir: "{{ certificate_directory }}"
+  when: ansible_hostname == admin_hostname
+  with_items: "{{ certificate_host_list }}"
+
+- name: "Change right for certificates"
+  ansible.builtin.file:
+    path: "{{ certificate_certs_directory }}/{{ item }}/{{ certificate_name }}.crt"
+    mode: "0444"
+  when: ansible_hostname == admin_hostname
+  with_items: "{{ certificate_host_list }}"
+
+- name: "Verification"
+  ansible.builtin.command: openssl x509 -noout -text -in "{{ certificate_certs_directory }}/{{ item }}/{{ certificate_name }}.crt"
+  register: command_output
+  with_items: "{{ certificate_host_list }}"
+
+- debug:
+    msg: "{{ item.stdout }}"
+  with_items: "{{ command_output.results }}"

@@ -1,0 +1,55 @@
+---
+# tasks file for certificate-create
+- name: "Build DNS subject alt name"
+  set_fact:
+    subject_alt_name_dns: "{% for item in certificate_alt_names %}DNS:{{ item }}, DNS:{{ item }}.{{ domain_name }},{% endfor %}[:-1]"
+
+- name: "Build IP subject alt name"
+  set_fact:
+    subject_alt_name_ip: "{% for item in certificate_alt_names %}IP:{{ hostvars[item].ansible_host }},{% endfor %}"
+
+
+- set_fact:
+    subject_alt_names: "{{ subject_alt_name_dns }}[:-1], DNS:{{item}}, DNS:{{item}}.{{domain_name}}, {{ subject_alt_name_ip }}[:-1], IP:{{ hostvars[item].ansible_host }}, IP:127.0.0.1"
+
+
+- name: "Generate private key"
+  community.crypto.openssl_privatekey:
+    path: "{{ certificate_directory }}/{{ certificate_names }}.key"
+    type: "{{ certificate_type }}"
+    size: "{{ certificate_size }}"
+    passphrase: "{{ secret_ca_passphrase }}"
+    cipher: auto
+    owner: "{{ certificate_owner }}"
+    group: "{{ certificate_group }}"
+    mode: '0700'
+    state: present
+    force: true
+  
+- name: "Generate CSR"
+  community.crypto.openssl_csr:
+    path: "{{ certificate_directory }}/{{ certificate_names }}.csr"
+    privatekey_path: "{{ certificate_directory }}/{{ certificate_names }}.key"
+    privatekey_passphrase: "{{ secret_ca_passphrase }}"
+    common_name: "{{ certificate_names }}"
+    key_usage:
+      - digitalSignature
+    extended_key_usage:
+      - serverAuth
+    subject_alt_name: subject_alt_names.split(',')
+    owner: "{{ certificate_owner }}"
+    group: "{{ certificate_group }}"     
+    mode: '0700'
+    force: True
+  with_items: "{{ certificate_names }}"
+
+- name: "Generate certificate signed with our own CA certificate"
+  community.crypto.x509_certificate:
+    path: "{{ certificate_directory }}/{{ certificate_names }}.crt"
+    csr_path: "{{ certificate_directory }}/{{ certificate_names }}.csr"
+    ownca_path: "{{ ca_certs_directory }}/{{ certificate_ca_name }}.crt"
+    ownca_privatekey_path: "{{ ca_private_directory }}/{{ certificate_ca_name }}.key"
+    ownca_privatekey_passphrase: "{{ secret_ca_passphrase }}"
+    provider: ownca
+    force: True
+  with_items: "{{ certificate_names }}"

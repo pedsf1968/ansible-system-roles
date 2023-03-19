@@ -1,0 +1,30 @@
+---
+# tasks file to remove all certificates files on admin_hostname
+
+- name: "Remove keys {{ certificate_name }}.key files on {{ admin_hostname }}"
+  ansible.builtin.file:
+    path: "{{ certificate_private_directory }}/{{ item }}/{{ certificate_name }}.key"
+    state: absent
+  when: inventory_hostname == admin_hostname
+  with_items: "{{ certificate_host_list }}"
+
+- name: "Remove keys {{ certificate_name }}.key.pem files on {{ admin_hostname }}"
+  ansible.builtin.file:
+    path: "{{ certificate_private_directory }}/{{ item }}/{{ certificate_name }}.key.pem"
+    state: absent
+  when: inventory_hostname == admin_hostname
+  with_items: "{{ certificate_host_list }}"
+
+- name: "Remove certificate {{ certificate_name }}.crt files on {{ admin_hostname }}"
+  ansible.builtin.file:
+    path: "{{ certificate_certs_directory }}/{{ item }}/{{ certificate_name }}.crt"
+    state: absent
+  when: inventory_hostname == admin_hostname
+  with_items: "{{ certificate_host_list }}"
+
+- name: "Remove CSR {{ certificate_name }}.csr files on {{ admin_hostname }}"
+  ansible.builtin.file:
+    path: "{{ certificate_csr_directory }}/{{ item }}/{{ certificate_name }}.csr"
+    state: absent
+  when: inventory_hostname == admin_hostname
+  with_items: "{{ certificate_host_list }}"

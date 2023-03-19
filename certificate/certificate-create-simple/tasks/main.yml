@@ -1,0 +1,48 @@
+---
+# tasks file for certificate-create
+- name: "Generate private key"
+  community.crypto.openssl_privatekey:
+    path: "{{ ca_private_directory }}/{{ item }}.key"
+    type: "{{ certificate_type }}"
+    size: "{{ certificate_size }}"
+    passphrase: "{{ secret_ca_passphrase }}"
+    cipher: auto
+    owner: "{{ admin_username }}"
+    mode: '0700'
+    state: present
+    force: true
+  with_items: "{{ certificate_names }}"
+  when: inventory_hostname == admin_hostname
+
+- name: "Generate CSR"
+  community.crypto.openssl_csr:
+    path: "{{ ca_csr_directory }}/{{ item }}.csr"
+    privatekey_path: "{{ ca_private_directory }}/{{ item }}.key"
+    privatekey_passphrase: "{{ secret_ca_passphrase }}"
+    common_name: "{{item}}"
+    key_usage:
+      - digitalSignature
+    extended_key_usage:
+      - serverAuth
+    subject_alt_name:
+      - DNS:{{item}}
+      - DNS:{{item}}.{{domain_name}}
+      - IP:{{ hostvars[item].ansible_host }}
+      - IP:127.0.0.1
+    owner: "{{ admin_username }}"
+    mode: '0700'
+    force: True
+  with_items: "{{ certificate_names }}"
+  when: inventory_hostname == admin_hostname
+
+- name: "Generate certificate signed with our own CA certificate"
+  community.crypto.x509_certificate:
+    path: "{{ ca_certs_directory }}/{{ item }}.crt"
+    csr_path: "{{ ca_csr_directory }}/{{ item }}.csr"
+    ownca_path: "{{ ca_certs_directory }}/{{ certificate_ca_name }}.crt"
+    ownca_privatekey_path: "{{ ca_private_directory }}/{{ certificate_ca_name }}.key"
+    ownca_privatekey_passphrase: "{{ secret_ca_passphrase }}"
+    provider: ownca
+    force: True
+  with_items: "{{ certificate_names }}"
+  when: inventory_hostname == admin_hostname

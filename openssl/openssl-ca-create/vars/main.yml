@@ -1,0 +1,18 @@
+---
+# vars file for openssl-ca-create
+certificate_directory: "/home/ansible/ca"
+certificate_private_directory: "{{ certificate_directory }}/private"
+certificate_certs_directory: "{{ certificate_directory }}/certs"
+certificate_csr_directory: "{{ certificate_directory }}/csr"
+certificate_crl_directory: "{{ certificate_directory }}/crl"
+certificate_newcerts_directory: "{{ certificate_directory }}/newcerts"
+
+certificate_ca_common_name: "*.{{ domain_name }}"
+certificate_organization_name: "HawkFund Inc."
+certificate_organizational_unit: "SIS"
+certificate_locality: "Seoul"
+certificate_state: "Seoul"
+certificate_country: "KR"
+certificate_ca_type: RSA
+certificate_ca_size: 4096
+certificate_days: 7300

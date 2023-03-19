@@ -1,0 +1,63 @@
+---
+# tasks file for ca-create
+- name: "Create Cert directory"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0700'
+  with_items:
+    - "{{ certificate_directory }}"
+    - "{{ certificate_private_directory }}"
+    - "{{ certificate_csr_directory }}"
+    - "{{ certificate_certs_directory }}"
+
+- name: "Create private key for CA with password protection"
+  community.crypto.openssl_privatekey:
+    path: "{{ certificate_private_directory }}/{{ certificate_ca_name }}.key"
+    type: "{{ certificate_ca_type }}"
+    size: "{{ certificate_ca_size }}"
+    passphrase: "{{ secret_ca_passphrase }}"
+    cipher: auto
+    owner: "{{ admin_username }}"
+    mode: '0400'
+    state: present
+    force: true
+
+- name: Create CSR (certificate signing request) for CA certificate
+  community.crypto.openssl_csr:
+    path: "{{ certificate_csr_directory }}/{{ certificate_ca_name }}.csr"
+    privatekey_path: "{{ certificate_private_directory }}/{{ certificate_ca_name }}.key"
+    privatekey_passphrase: "{{ secret_ca_passphrase }}"
+    common_name: "{{ certificate_ca_common_name }}"
+    organization_name: "{{ certificate_organization_name }}"
+    email_address: "{{ certificate_email_address }}"
+    basic_constraints:
+      - 'CA:TRUE'
+      - pathlen:1
+    basic_constraints_critical: true
+    key_usage:
+      - keyCertSign
+      - digitalSignature
+    owner: "{{ admin_username }}"
+    mode: '0400'
+    force: True
+  
+- name: Create self-signed CA certificate from CSR
+  community.crypto.x509_certificate:
+    path: "{{ certificate_certs_directory }}/{{ certificate_ca_name }}.crt"
+    privatekey_path: "{{ certificate_private_directory }}/{{ certificate_ca_name }}.key"
+    privatekey_passphrase: "{{ secret_ca_passphrase }}"
+    csr_path: "{{ certificate_csr_directory }}/{{ certificate_ca_name }}.csr"
+    provider: selfsigned
+    owner: "{{ admin_username }}"
+    mode: '0400'
+    force: true
+  
+- name: "Get information on generated certificate"
+  community.crypto.x509_certificate_info:
+    path: "{{ certificate_certs_directory }}/{{ certificate_ca_name }}.crt"
+  register: result
+  
+- name: "Dump information"
+  ansible.builtin.debug:
+    var: result

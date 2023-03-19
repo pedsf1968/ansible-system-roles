@@ -1,0 +1,57 @@
+---
+# tasks file for certificate-create-csr
+# need to generate key before with certificate-create-key
+- name: "Create directory for CSR"
+  ansible.builtin.file:
+    path: "{{ certificate_csr_directory }}/{{ item }}"
+    state: directory
+    mode: '0700'
+  when: ansible_hostname == admin_hostname  
+  with_items: "{{ certificate_host_list }}"
+
+
+- name: "Generate CSR"
+  community.crypto.openssl_csr:
+    path: "{{ certificate_csr_directory }}/{{ item }}/{{ certificate_name }}.csr"
+    privatekey_path: "{{ certificate_private_directory }}/{{ item }}/{{ certificate_name }}.key"
+    privatekey_passphrase: "{{ secret_ca_passphrase }}"
+    common_name: "{{ certificate_name }}"
+    key_usage:
+      - digitalSignature
+    extended_key_usage:
+      - serverAuth
+    subject_alt_name: 
+      - "DNS:k8s-etcd-01"
+      - "DNS:k8s-etcd-01.{{ domain_name }}"
+      - "DNS:k8s-etcd-02"
+      - "DNS:k8s-etcd-02.{{ domain_name }}"
+      - "DNS:k8s-etcd-03"
+      - "DNS:k8s-etcd-03.{{ domain_name }}"
+      - "DNS:k8s-etcd-04"
+      - "DNS:k8s-etcd-04.{{ domain_name }}"
+      - "DNS:k8s-etcd-05"
+      - "DNS:k8s-etcd-05.{{ domain_name }}"
+      - "DNS:k8s-etcd-lb-vip"
+      - "DNS:k8s-etcd-lb-vip.{{ domain_name }}"
+      - "IP:10.1.66.31"
+      - "IP:10.1.66.32"
+      - "IP:10.1.66.33"
+      - "IP:10.1.66.34"
+      - "IP:10.1.66.35"
+      - "IP:127.0.0.1"
+      - "IP:10.1.66.30"
+    owner: "{{ certificate_owner }}"
+    group: "{{ certificate_group }}"     
+    mode: '0600'
+    force: True
+  when: ansible_hostname == admin_hostname
+  with_items: "{{ certificate_host_list }}"
+
+
+#      - "DNS:{{ item }}"
+#      - "DNS:{{ item }}.{{ domain_name }}"
+#      - "DNS:k8s-etcd-lb-vip"
+#      - "DNS:k8s-etcd-lb-vip.{{ domain_name }}"
+#      - "IP:{{ hostvars[item].ansible_host }}"
+#      - "IP:127.0.0.1"
+#      - "IP:10.1.66.30"

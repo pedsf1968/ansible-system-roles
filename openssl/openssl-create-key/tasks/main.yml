@@ -1,0 +1,23 @@
+---
+# tasks file to generate private key on dedicated directory
+- name: "Create directory for private key"
+  ansible.builtin.file:
+    path: "{{ certificate_private_directory }}/{{ item }}"
+    state: directory
+    mode: '0700'
+  when: inventory_hostname == admin_hostname
+  with_items: "{{ certificate_host_list }}"
+
+- name: "Generate private key"
+  ansible.builtin.command: openssl genrsa -aes256 -passout file:passphrase.txt -out "{{ certificate_private_directory }}/{{ item }}/{{ certificate_name }}.key" "{{ certificate_ca_size }}"
+  args:
+    chdir: "{{ certificate_directory }}"
+  when: inventory_hostname == admin_hostname
+  with_items: "{{ certificate_host_list }}"
+
+- name: "Change right for key file"
+  ansible.builtin.file:
+    path: "{{ certificate_private_directory }}/{{ item }}/{{ certificate_name }}.key"
+    mode: "0400"
+  when: inventory_hostname == admin_hostname
+  with_items: "{{ certificate_host_list }}"

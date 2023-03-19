@@ -1,0 +1,61 @@
+---
+# tasks file for openssl-copy
+# Copy CA cert and all certificates of certificate_name_list
+
+- name: "Create relevant etcd folders {{ certificate_remote_directory }}"
+  ansible.builtin.file:
+    path: "{{ certificate_remote_directory }}"
+    state: directory
+    owner: "{{ certificate_remote_owner }}"
+    group: "{{ certificate_remote_group }}"
+  when: ansible_hostname != admin_hostname
+
+- name: "Copy CA certs : {{ certificate_ca_name }}.crt"
+  ansible.builtin.copy:
+    src: "{{ certificate_certs_directory }}/{{ certificate_ca_name }}.crt"
+    dest: "{{ certificate_remote_directory }}"
+    owner: "{{ certificate_remote_owner }}"
+    group: "{{ certificate_remote_group }}"
+    mode: 0444
+  when: ansible_hostname != admin_hostname
+  
+- name: "Copy {{ certificate_name_list }} certificates keys "
+  ansible.builtin.copy:
+    src: "{{ certificate_private_directory }}/{{ inventory_hostname }}/{{ item }}.key"
+    dest: "{{ certificate_remote_directory }}"
+    owner: "{{ certificate_remote_owner }}"
+    group: "{{ certificate_remote_group }}"
+    mode: 0400
+  when: ansible_hostname != admin_hostname  
+  with_items: "{{ certificate_name_list }}"
+
+- name: "Copy {{ certificate_name_list }} certificates keys PEM format"
+  ansible.builtin.copy:
+    src: "{{ certificate_private_directory }}/{{ inventory_hostname }}/{{ item }}.key.pem"
+    dest: "{{ certificate_remote_directory }}"
+    owner: "{{ certificate_remote_owner }}"
+    group: "{{ certificate_remote_group }}"
+    mode: 0400
+  when: ansible_hostname != admin_hostname  
+  with_items: "{{ certificate_name_list }}"
+
+
+- name: "Copy {{ certificate_name_list }} certificates CSR"
+  ansible.builtin.copy:
+    src: "{{ certificate_csr_directory }}/{{ inventory_hostname }}/{{ item }}.csr"
+    dest: "{{ certificate_remote_directory }}"
+    owner: "{{ certificate_remote_owner }}"
+    group: "{{ certificate_remote_group }}"
+    mode: 0444
+  when: ansible_hostname != admin_hostname  
+  with_items: "{{ certificate_name_list }}"
+  
+- name: "Copy {{ certificate_name_list }} certificates CRT"
+  ansible.builtin.copy:
+    src: "{{ certificate_certs_directory }}/{{ inventory_hostname }}/{{ item }}.crt"
+    dest: "{{ certificate_remote_directory }}"
+    owner: "{{ certificate_remote_owner }}"
+    group: "{{ certificate_remote_group }}"
+    mode: 0444
+  when: ansible_hostname != admin_hostname  
+  with_items: "{{ certificate_name_list }}"

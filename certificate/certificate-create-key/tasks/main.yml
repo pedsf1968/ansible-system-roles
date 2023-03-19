@@ -1,0 +1,25 @@
+---
+# tasks file to generate private key on dedicated directory
+- name: "Create directory for private key"
+  ansible.builtin.file:
+    path: "{{ certificate_private_directory }}/{{ item }}"
+    state: directory
+    mode: '0700'
+  when: inventory_hostname == admin_hostname
+  with_items: "{{ certificate_host_list }}"
+
+- name: "Generate private key"
+  community.crypto.openssl_privatekey:
+    path: "{{ certificate_private_directory }}/{{ item }}/{{ certificate_name }}.key"
+    type: "{{ certificate_type }}"
+    size: "{{ certificate_size }}"
+    passphrase: "{{ secret_ca_passphrase }}"
+    cipher: auto
+    owner: "{{ certificate_owner }}"
+    group: "{{ certificate_group }}"
+    mode: '0600'
+    state: present
+    force: true
+  when: inventory_hostname == admin_hostname
+  with_items: "{{ certificate_host_list }}"
+

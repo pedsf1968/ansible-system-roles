@@ -1,0 +1,9 @@
+---
+# tasks file to create passphrase file
+- name: "Generate passphrase file"
+  ansible.builtin.template:
+    src: "passphrase.txt.j2"
+    dest: "{{ certificate_directory }}/passphrase.txt"
+    owner: "{{ admin_username }}"
+    group: "{{ admin_username }}"
+    mode: "0600"

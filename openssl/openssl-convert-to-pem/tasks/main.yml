@@ -1,0 +1,15 @@
+---
+# tasks file to convert key in PEM format
+- name: "Convert private key in PEM format"
+  ansible.builtin.command: openssl rsa -passin file:passphrase.txt -in "{{ certificate_private_directory }}/{{ item }}/{{ certificate_name }}.key" -text -out "{{ certificate_private_directory }}/{{ item }}/{{ certificate_name }}.key.pem"
+  args:
+    chdir: "{{ certificate_directory }}"
+  when: inventory_hostname == admin_hostname
+  with_items: "{{ certificate_host_list }}"
+
+- name: "Change right for key file"
+  ansible.builtin.file:
+    path: "{{ certificate_private_directory }}/{{ item }}/{{ certificate_name }}.key.pem"
+    mode: "0400"
+  when: inventory_hostname == admin_hostname
+  with_items: "{{ certificate_host_list }}"

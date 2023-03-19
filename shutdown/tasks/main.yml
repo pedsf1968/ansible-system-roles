@@ -1,0 +1,5 @@
+---
+
+- name: "Unconditionally shut down the machine with all defaults"
+  community.general.shutdown:
+  when: inventory_hostname != "{{ admin_hostname }}"

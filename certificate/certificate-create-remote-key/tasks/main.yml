@@ -1,0 +1,31 @@
+---
+# tasks file to generate private key
+- name: "Create {{ certificate_directory }} directory"
+  ansible.builtin.file:
+    path: "{{ certificate_directory }}"
+    owner: "{{ certificate_owner }}"
+    group: "{{ certificate_group }}"
+    state: directory
+
+- name: "Generate private key"
+  community.crypto.openssl_privatekey:
+    path: "{{ certificate_directory }}/{{ certificate_name }}.key"
+    type: "{{ certificate_type }}"
+    size: "{{ certificate_size }}"
+    passphrase: "{{ secret_ca_passphrase }}"
+    cipher: auto
+    owner: "{{ certificate_owner }}"
+    group: "{{ certificate_group }}"
+    mode: '0600'
+    state: present
+    force: true
+
+# fetch private key in ansible certificat directory
+- name: "Fetch {{ certificate_name }}.key file"
+  ansible.builtin.fetch:
+    src: "{{ certificate_directory }}/{{ certificate_name }}.key"
+    dest: "{{ ca_private_directory }}/{{ inventory_hostname }}-{{ certificate_name }}.key"
+    flat: yes
+    owner: "{{ admin_username }}"
+    group: "{{ admin_username }}"
+    mode: '0600'

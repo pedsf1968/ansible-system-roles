@@ -1,0 +1,4 @@
+---
+# vars file for certificate-create-key
+certificate_type: RSA
+certificate_size: 4096
