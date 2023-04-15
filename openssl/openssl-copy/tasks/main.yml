@@ -29,9 +29,9 @@
   when: ansible_hostname != admin_hostname  
   with_items: "{{ certificate_name_list }}"
 
-- name: "Copy {{ certificate_name_list }} certificates keys PEM format"
+- name: "Copy {{ certificate_name_list }} certificates public keys"
   ansible.builtin.copy:
-    src: "{{ certificate_private_directory }}/{{ inventory_hostname }}/{{ item }}.key.pem"
+    src: "{{ certificate_private_directory }}/{{ inventory_hostname }}/{{ item }}.pem"
     dest: "{{ certificate_remote_directory }}"
     owner: "{{ certificate_remote_owner }}"
     group: "{{ certificate_remote_group }}"

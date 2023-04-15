@@ -1,28 +1,37 @@
+# OpenSSL root CA configuration file.
+
 [ ca ]
+# `man ca`
 default_ca = CA_default
 
 [ CA_default ]
-prompt            = no
+# Directory and file locations.
 dir               = {{ openssl_ca_directory }}
 certs             = {{ openssl_certs_directory }}
-crl_dir           = {{ openssl_crl_directory }}
 new_certs_dir     = {{ openssl_newcerts_directory }}
+crl_dir           = {{ openssl_crl_directory }}
 database          = {{ openssl_ca_directory }}/index.txt
 serial            = {{ openssl_ca_directory }}/serial
 RANDFILE          = {{ openssl_private_directory }}/.rand
-private_key       = {{ openssl_private_directory }}/{{ openssl_ca_certificate_name }}.key
-certificate       = {{ openssl_certs_directory }}/{{ openssl_ca_certificate_name }}.crt
+
+# Root CA certificate and key.
+certificate       = {{ openssl_certs_directory }}/{{ openssl_certificate_name }}.crt
+private_key       = {{ openssl_private_directory }}/{{ openssl_certificate_name }}.key
+
+# For certificate revocation lists.
 crlnumber         = {{ openssl_ca_directory }}/crlnumber
-crl               = {{ openssl_crl_directory }}/{{ openssl_ca_certificate_name }}.crl
+crl               = {{ openssl_crl_directory }}/{{ openssl_certificate_name }}.crl
 crl_extensions    = crl_ext
 default_crl_days  = 30
-default_md          = sha256
+
+# SHA-1 is deprecated, so use SHA-2 instead.
+default_md        = sha256
+
 name_opt          = ca_default
 cert_opt          = ca_default
 default_days      = {{ openssl_certificate_short_days }}
 preserve          = no
 policy            = policy_strict
-
 
 [ policy_strict ]
 # The root CA should only sign intermediate certificates that match.
@@ -46,36 +55,58 @@ commonName              = supplied
 emailAddress            = optional
 
 [ req ]
-default_bits                    = {{ openssl_certificate_short_size }}
-distinguished_name              = req_distinguished_name
-string_mask                     = utf8only
-default_md                      = sha256
-x509_extensions                 = server_cert
+# Options for the `req` tool (`man req`).
+default_bits        = {{ openssl_certificate_short_size }}
+distinguished_name  = req_distinguished_name
+string_mask         = utf8only
+
+# SHA-1 is deprecated, so use SHA-2 instead.
+default_md          = sha512
+
+# Extension to add when the -x509 option is used.
+x509_extensions     = v3_ca
 
 [ req_distinguished_name ]
+# See <https://en.wikipedia.org/wiki/Certificate_signing_request>.
 countryName                     = {{ openssl_country }}
 stateOrProvinceName             = {{ openssl_state }}
 localityName                    = {{ openssl_locality }}
-organizationName                = {{ openssl_organization_name }}
+organizationName              = {{ openssl_organization_name }}
 organizationalUnitName          = {{ openssl_organizational_unit }}
-commonName                      = {{ ansible_hostname }}
+commonName                      = {{ openssl_common_name }}
 emailAddress                    = {{ openssl_email_address }}
 
 # Optionally, specify some defaults.
 countryName_default             = {{ openssl_country }}
 stateOrProvinceName_default     = {{ openssl_state }}
 localityName_default            = {{ openssl_locality }}
-organizationName_default        = {{ openssl_organization_name }}
+organizationName_default      = {{ openssl_organization_name }}
 organizationalUnitName_default  = {{ openssl_organizational_unit }}
-commonName_default              = {{ ansible_hostname }}
 emailAddress_default            = {{ openssl_email_address }}
 
-
 [ v3_ca ]
+# Extensions for a typical CA (`man x509v3_config`).
 subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid:always,issuer
-basicConstraints = critical, CA:true
-keyUsage = critical, digitalSignature
+basicConstraints = critical, CA:true, pathlen:0
+keyUsage = critical, digitalSignature, cRLSign, keyCertSign
+
+[ v3_intermediate_ca ]
+# Extensions for a typical intermediate CA (`man x509v3_config`).
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer
+basicConstraints = critical, CA:true, pathlen:0
+keyUsage = critical, digitalSignature, cRLSign, keyCertSign
+
+[ usr_cert ]
+# Extensions for client certificates (`man x509v3_config`).
+basicConstraints = CA:FALSE
+nsCertType = client, email
+nsComment = "OpenSSL Generated Client Certificate"
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer
+keyUsage = critical, nonRepudiation, digitalSignature, keyEncipherment
+extendedKeyUsage = clientAuth, emailProtection
 
 [ server_cert ]
 # Extensions for server certificates (`man x509v3_config`).
@@ -86,3 +117,15 @@ subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid,issuer:always
 keyUsage = critical, digitalSignature, keyEncipherment
 extendedKeyUsage = serverAuth
+
+[ crl_ext ]
+# Extension for CRLs (`man x509v3_config`).
+authorityKeyIdentifier=keyid:always
+
+[ ocsp ]
+# Extension for OCSP signing certificates (`man ocsp`).
+basicConstraints = CA:FALSE
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer
+keyUsage = critical, digitalSignature
+extendedKeyUsage = critical, OCSPSigning

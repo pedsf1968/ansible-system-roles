@@ -1,0 +1,55 @@
+---
+# Root CA install
+
+########################################################################## INIT
+- name: "Gather facts"
+  hosts: ["admin","security"]
+  gather_facts: true
+
+- name: "Update system and set FireWall rules"
+  hosts: ["security"]
+  become: yes
+  gather_facts: false
+  vars:
+    ufw_allow_openssh_src: "{{ hostvars['isa-server'].ansible_default_ipv4.address }}"
+    ufw_allow_openssh_dest: "{{ ansible_host }}"
+    ufw_enable_policy: reject
+  roles:
+    #- role: "system/nala/nala-update"
+    #- role: "system/nala/nala-upgrade"
+    #- role: "system/ufw/ufw-allow-openssh"
+    #- role: "system/ufw/ufw-enable"
+
+############################################################### CREATE CA ADMIN
+- name: "Create CA admin"
+  hosts: ["security"]
+  become: yes
+  gather_facts: false
+  vars:
+    create_group_name: "{{ ca_admin_user_group }}"
+    create_group_gid: "{{ ca_admin_user_gid }}"
+    create_group_system: true
+    create_user_name: "{{ ca_admin_user_name }}"
+    create_user_uid: "{{ ca_admin_user_uid }}"
+    create_user_comment: "{{ ca_admin_user_comment }}"
+    create_home: true
+    create_user_shell: "/bin/bash"
+    create_user_system: true
+  roles:
+    #- role: "user/group-create"
+    #- role: "user/user-create"
+
+
+################################################################ LAUNCH INSTALL
+- name: "Generate Root Certificates"
+  hosts: ["security"]
+  become: yes
+  gather_facts: yes
+  vars_prompt:
+  - name: secret_ca_passphrase
+    prompt: CA certificate passphrase
+  roles:
+    - role: "system/openssl/openssl-passfile-create"
+    - role: "system/openssl/openssl-init"
+    - role: "system/openssl/openssl-ca-create"
+    - role: "system/openssl/openssl-passfile-remove"

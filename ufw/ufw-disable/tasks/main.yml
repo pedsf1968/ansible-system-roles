@@ -1,0 +1,5 @@
+---
+# tasks file for ufw-disable
+- name: "Disable UFW"
+  community.general.ufw:
+    state: disabled

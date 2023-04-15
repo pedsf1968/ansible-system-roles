@@ -1,0 +1,9 @@
+---
+# tasks file for ufw-allow-OpenSSH
+- name: "Allow trafic from SRC to DEST in port range (FROM_PORT TO_PORT) with PROTO protocol"
+  community.general.ufw:
+    rule: allow
+    name: OpenSSH
+    src: "{{ ufw_allow_openssh_src }}"
+    dest: "{{ ufw_allow_openssh_dest }}"
+    comment: "Allow OpenSSH connexion"

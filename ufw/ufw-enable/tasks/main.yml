@@ -1,0 +1,6 @@
+---
+# tasks file for ufw-enable
+- name: "Reject everything and enable UFW"
+  community.general.ufw:
+    state: enabled
+    policy: "{{ ufw_enable_policy }}"

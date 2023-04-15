@@ -1,0 +1,12 @@
+---
+# tasks file for ufw-deny
+- name: "Deny trafic from SRC to DEST in port range (FROM_PORT TO_PORT) with PROTO protocol"
+  community.general.ufw:
+    rule: deny
+    direction: "{{ ufw_deny_direction }}"
+    proto: "{{ ufw_deny_proto }}"
+    src: "{{ ufw_deny_src }}"
+    from_port: "{{ ufw_deny_from_port }}"
+    dest: "{{ ufw_deny_dest }}"
+    to_port: "{{ ufw_deny_to_port }}"
+    comment: "{{ ufw_deny_comment }}"

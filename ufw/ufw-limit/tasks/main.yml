@@ -1,0 +1,12 @@
+---
+# tasks file for ufw-limit
+- name: "Limit trafic from SRC to DEST in port range (FROM_PORT TO_PORT) with PROTO protocol"
+  community.general.ufw:
+    rule: limit
+    direction: "{{ ufw_limit_direction }}"
+    proto: "{{ ufw_limit_proto }}"
+    src: "{{ ufw_limit_src }}"
+    from_port: "{{ ufw_limit_from_port }}"
+    dest: "{{ ufw_limit_dest }}"
+    to_port: "{{ ufw_limit_to_port }}"
+    comment: "{{ ufw_limit_comment }}"

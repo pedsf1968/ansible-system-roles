@@ -1,4 +1,4 @@
 ---
 # tasks file for Nala upgrade command
-- name: "Nala update"
+- name: "Nala upgrade"
   ansible.builtin.command: nala upgrade -y

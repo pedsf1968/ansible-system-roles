@@ -1,0 +1,20 @@
+---
+# tasks file for ssh-reset-server-key
+- name: "Remove all key files"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - /etc/ssh/ssh_host_dsa_key
+    - /etc/ssh/ssh_host_dsa_key.pub
+    - /etc/ssh/ssh_host_ecdsa_key
+    - /etc/ssh/ssh_host_ecdsa_key.pub
+    - /etc/ssh/ssh_host_ed25519_key
+    - /etc/ssh/ssh_host_ed25519_key.pub
+    - /etc/ssh/ssh_host_rsa_key
+    - /etc/ssh/ssh_host_rsa_key.pub
+
+- name: "Generate new ssh server keys"
+  ansible.builtin.command: ssh-keygen -A
+  args:
+    chdir: /etc/ssh/

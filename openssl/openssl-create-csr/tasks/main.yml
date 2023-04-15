@@ -2,34 +2,43 @@
 # tasks file for openssl-create-csr
 # need to generate key before with certificate-create-key
 
+- name: "Create directory for OpenSSL configuration files"
+  ansible.builtin.file:
+    path: "{{ openssl_conf_directory }}/{{ item }}"
+    state: directory
+    owner: "{{ openssl_admin_user_name }}"
+    group: "{{ openssl_admin_user_group }}"
+    mode: '0700'
+  with_items: "{{ openssl_host_list }}"
+
 - name: "Create directory for CSR"
   ansible.builtin.file:
-    path: "{{ certificate_csr_directory }}/{{ item }}"
+    path: "{{ openssl_csr_directory }}/{{ item }}"
     state: directory
+    owner: "{{ openssl_admin_user_name }}"
+    group: "{{ openssl_admin_user_group }}"
     mode: '0700'
-  when: ansible_hostname == admin_hostname  
-  with_items: "{{ certificate_host_list }}"
+  with_items: "{{ openssl_host_list }}"
 
 - name: "Generate CSR configuration on CSR directory"
   ansible.builtin.template:
-    src: "openssl.conf.j2"
-    dest: "{{ certificate_csr_directory }}/{{ item }}/openssl.conf"
-    owner: "{{ admin_username }}"
-    group: "{{ admin_username }}"
+    src: "openssl-client.conf.j2"
+    dest: "{{ openssl_conf_directory }}/{{ item }}/openssl.conf"
+    owner: "{{ openssl_admin_user_name }}"
+    group: "{{ openssl_admin_user_group }}"
     mode: "0600"
-  when: ansible_hostname == admin_hostname
-  with_items: "{{ certificate_host_list }}"
+  with_items: "{{ openssl_host_list }}"
 
 - name: "Create CSR"
-  ansible.builtin.command: openssl req -new -passin file:passphrase.txt -key "{{ certificate_private_directory }}/{{ item }}/{{ certificate_name }}.key" -config "{{ certificate_csr_directory }}/{{ item }}/openssl.conf" -batch -out "{{ certificate_csr_directory }}/{{ item }}/{{ certificate_name }}.csr"
+  ansible.builtin.command: openssl req -new -config {{ openssl_conf_directory }}/{{ item }}/openssl.conf -passin file:.passphrase -batch -key {{ openssl_private_directory }}/{{ item }}/{{ openssl_certificate_name }}.key -out {{ openssl_csr_directory }}/{{ item }}/{{ openssl_certificate_name }}.csr
   args:
-    chdir: "{{ certificate_directory }}"
-  when: ansible_hostname == admin_hostname
-  with_items: "{{ certificate_host_list }}"
+    chdir: "{{ openssl_ca_directory }}"
+  with_items: "{{ openssl_host_list }}"
 
 - name: "Change right for CSR file"
   ansible.builtin.file:
-    path: "{{ certificate_csr_directory }}/{{ item }}/{{ certificate_name }}.csr"
+    path: "{{ openssl_csr_directory }}/{{ item }}/{{ openssl_certificate_name }}.csr"
+    owner: "{{ openssl_admin_user_name }}"
+    group: "{{ openssl_admin_user_group }}"
     mode: "0444"
-  when: ansible_hostname == admin_hostname
-  with_items: "{{ certificate_host_list }}"
+  with_items: "{{ openssl_host_list }}"

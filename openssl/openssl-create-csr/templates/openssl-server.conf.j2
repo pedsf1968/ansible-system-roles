@@ -1,0 +1,29 @@
+[ req ]
+prompt                 = no
+days                   = 365
+distinguished_name     = req_distinguished_name
+req_extensions         = v3_req
+
+
+[ req_distinguished_name ]
+countryName                     = {{ openssl_country }}
+stateOrProvinceName             = {{ openssl_state }}
+localityName                    = {{ openssl_locality }}
+organizationName                = {{ openssl_organization_name }}
+organizationalUnitName          = {{ openssl_organizational_unit }}
+commonName                      = {{ ansible_hostname }}
+emailAddress                    = {{ openssl_email_address }}
+commonName                      = {{ item }}.{{ domain_name }}
+emailAddress                    = {{ openssl_email_address }}
+
+[ v3_req ]
+basicConstraints       = CA:false
+extendedKeyUsage       = serverAuth
+subjectAltName         = @sans
+
+[ sans ]
+DNS.1 = localhost
+DNS.2 = {{ item }}
+DNS.3 = {{ item }}.{{ domain_name }}
+IP.1 = {{ hostvars[item].ansible_host }}
+IP.2 = 127.0.0.1

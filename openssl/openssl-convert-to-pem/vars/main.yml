@@ -15,4 +15,4 @@ certificate_state: "Seoul"
 certificate_country: "KR"
 certificate_ca_type: RSA
 certificate_ca_size: 4096
-certificate_days: 7300
+certificate_days: 3650

@@ -1,0 +1,12 @@
+---
+# tasks file for ufw-allow
+- name: "Allow trafic from SRC to DEST in port range (FROM_PORT TO_PORT) with PROTO protocol"
+  community.general.ufw:
+    rule: allow
+    direction: "{{ ufw_allow_direction }}"
+    proto: "{{ ufw_allow_proto }}"
+    src: "{{ ufw_allow_src }}"
+    from_port: "{{ ufw_allow_from_port }}"
+    dest: "{{ ufw_allow_dest }}"
+    to_port: "{{ ufw_allow_to_port }}"
+    comment: "{{ ufw_allow_comment }}"

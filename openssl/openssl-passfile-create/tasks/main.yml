@@ -1,9 +1,18 @@
 ---
 # tasks file to create passphrase file
+
+- name: "Create directory if not exist"
+  ansible.builtin.file:
+    path: "{{ openssl_ca_directory }}"
+    state: directory
+    owner: "{{ openssl_passfile_owner }}"
+    group: "{{ openssl_passfile_group }}"
+    mode: "0700"
+
 - name: "Generate passphrase file"
   ansible.builtin.template:
-    src: "passphrase.txt.j2"
-    dest: "{{ certificate_directory }}/passphrase.txt"
-    owner: "{{ admin_username }}"
-    group: "{{ admin_username }}"
+    src: ".passphrase.j2"
+    dest: "{{ openssl_ca_directory }}/.passphrase"
+    owner: "{{ openssl_passfile_owner }}"
+    group: "{{ openssl_passfile_group }}"
     mode: "0600"
