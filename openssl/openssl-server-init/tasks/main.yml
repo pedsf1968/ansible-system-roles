@@ -1,0 +1,33 @@
+---
+# tasks file for openssl-server-init
+# Create directories and files for certificates and keys
+
+- name: "Create Cert directory"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ openssl_admin_user_name }}"
+    group: "{{ openssl_admin_user_group }}"
+    mode: '0700'
+  with_items:
+    - "{{ openssl_destination_directory }}"
+    - "{{ openssl_destination_directory }}/private"
+    - "{{ openssl_destination_directory }}/csr"
+    - "{{ openssl_destination_directory }}/certs"
+    - "{{ openssl_destination_directory }}/newcerts"
+    - "{{ openssl_destination_directory }}/crl"
+
+- name: "Initialise value for serial file"
+  ansible.builtin.command: openssl rand -hex 16
+  register: serial_value
+
+- name: "Generate OpenSSL configuration"
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "{{ openssl_destination_directory }}/{{ item }}"
+    owner: "{{ openssl_admin_user_name }}"
+    group: "{{ openssl_admin_user_group }}"
+    mode: "0600"
+  with_items:
+    - index.txt
+    - serial

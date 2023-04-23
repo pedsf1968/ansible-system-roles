@@ -9,7 +9,7 @@
     owner: "{{ openssl_admin_user_name }}"
     group: "{{ openssl_admin_user_group }}"
     mode: '0700'
-  with_items: "{{ openssl_host_list }}"
+  with_items: "{{ openssl_hosts }}"
 
 - name: "Create directory for CSR"
   ansible.builtin.file:
@@ -18,27 +18,33 @@
     owner: "{{ openssl_admin_user_name }}"
     group: "{{ openssl_admin_user_group }}"
     mode: '0700'
-  with_items: "{{ openssl_host_list }}"
+  with_items: "{{ openssl_hosts }}"
 
-- name: "Generate CSR configuration on CSR directory"
+- name: "Generate CSR configuration on CSR directory for {{ openssl_certificate_type }} type"
   ansible.builtin.template:
-    src: "openssl-client.conf.j2"
-    dest: "{{ openssl_conf_directory }}/{{ item }}/openssl.conf"
+    src: "openssl-{{ openssl_certificate_type }}.conf.j2"
+    dest: "{{ openssl_conf_directory }}/{{ item.0 }}/openssl-{{ item.1 }}.conf"
     owner: "{{ openssl_admin_user_name }}"
     group: "{{ openssl_admin_user_group }}"
     mode: "0600"
-  with_items: "{{ openssl_host_list }}"
+  with_nested:
+    - "{{ openssl_hosts }}"
+    - "{{ openssl_certificate_names }}"
 
 - name: "Create CSR"
-  ansible.builtin.command: openssl req -new -config {{ openssl_conf_directory }}/{{ item }}/openssl.conf -passin file:.passphrase -batch -key {{ openssl_private_directory }}/{{ item }}/{{ openssl_certificate_name }}.key -out {{ openssl_csr_directory }}/{{ item }}/{{ openssl_certificate_name }}.csr
+  ansible.builtin.command: openssl req -new -config {{ openssl_conf_directory }}/{{ item.0 }}/openssl-{{ item.1 }}.conf -passin file:.passphrase -batch -key {{ openssl_private_directory }}/{{ item.0 }}/{{ item.1 }}.key -out {{ openssl_csr_directory }}/{{ item.0 }}/{{ item.1 }}.csr
   args:
     chdir: "{{ openssl_ca_directory }}"
-  with_items: "{{ openssl_host_list }}"
+  with_nested:
+    - "{{ openssl_hosts }}"
+    - "{{ openssl_certificate_names }}"
 
 - name: "Change right for CSR file"
   ansible.builtin.file:
-    path: "{{ openssl_csr_directory }}/{{ item }}/{{ openssl_certificate_name }}.csr"
+    path: "{{ openssl_csr_directory }}/{{ item.0 }}/{{ item.1 }}.csr"
     owner: "{{ openssl_admin_user_name }}"
     group: "{{ openssl_admin_user_group }}"
     mode: "0444"
-  with_items: "{{ openssl_host_list }}"
+  with_nested:
+    - "{{ openssl_hosts }}"
+    - "{{ openssl_certificate_names }}"

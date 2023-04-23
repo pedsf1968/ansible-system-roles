@@ -8,25 +8,27 @@
     owner: "{{ openssl_admin_user_name }}"
     group: "{{ openssl_admin_user_group }}"
     mode: '0700'
-  with_items: "{{ openssl_host_list }}"
+  with_items: "{{ openssl_hosts }}"
 
 - name: "Generate certificate signed with our own CA certificate" 
-  ansible.builtin.command: openssl x509 -req -passin file:.passphrase -extfile "{{ openssl_conf_directory }}/{{ item }}/openssl.conf" -CA "{{ openssl_certs_directory }}/{{ openssl_ca_certificate_name }}.crt" -CAkey "{{ openssl_private_directory }}/{{ openssl_ca_certificate_name }}.key" -in "{{ openssl_csr_directory }}/{{ item }}/{{ openssl_certificate_name }}.csr" -out "{{ openssl_certs_directory }}/{{ item }}/{{ openssl_certificate_name }}.crt" 
+  ansible.builtin.command: openssl x509 -req -passin file:.passphrase -extfile "{{ openssl_conf_directory }}/{{ item.0 }}/openssl-{{ item.1 }}.conf" -CA "{{ openssl_certs_directory }}/{{ openssl_ca_certificate_name }}.crt" -CAkey "{{ openssl_private_directory }}/{{ openssl_ca_certificate_name }}.key" -in "{{ openssl_csr_directory }}/{{ item.0 }}/{{ item.1 }}.csr" -out "{{ openssl_certs_directory }}/{{ item.0 }}/{{ item.1 }}.crt" 
   args:
     chdir: "{{ openssl_ca_directory }}"
-  with_items: "{{ openssl_host_list }}"
+  with_nested:
+    - "{{ openssl_hosts }}"
+    - "{{ openssl_certificate_names }}"
 
 - name: "Change right for certificates"
   ansible.builtin.file:
-    path: "{{ openssl_certs_directory }}/{{ item }}/{{ openssl_certificate_name }}.crt"
+    path: "{{ openssl_certs_directory }}/{{ item.0 }}/{{ item.1 }}.crt"
     mode: "0444"
-  with_items: "{{ openssl_host_list }}"
+  with_nested:
+    - "{{ openssl_hosts }}"
+    - "{{ openssl_certificate_names }}"
+
 
 - name: "Verification"
-  ansible.builtin.command: openssl x509 -noout -text -in "{{ openssl_certs_directory }}/{{ item }}/{{ openssl_certificate_name }}.crt"
-  register: command_output
-  with_items: "{{ openssl_host_list }}"
-
-- debug:
-    msg: "{{ item.stdout }}"
-  with_items: "{{ command_output.results }}"
+  ansible.builtin.command: openssl x509 -noout -text -in "{{ openssl_certs_directory }}/{{ item.0 }}/{{ item.1 }}.crt"
+  with_nested:
+    - "{{ openssl_hosts }}"
+    - "{{ openssl_certificate_names }}"

@@ -1,0 +1,23 @@
+---
+# tasks file for roles/system/openssl/openssl-push-certs
+
+- name: "Copy CA certs files"
+  ansible.builtin.copy:
+    src: "{{ openssl_local_directory }}/sub-ca/{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ openssl_admin_user_name }}"
+    group: "{{ openssl_admin_user_group }}"
+    mode: "{{ item.mode }}"
+  with_items:
+    - { src: "private/sub-ca.key", dest: "{{ openssl_sub_private_directory }}/sub-ca.key", mode: 400 }
+    - { src: "csr/sub-ca.csr", dest: "{{ openssl_sub_csr_directory }}/sub-ca.csr", mode: 444 }
+    - { src: "certs/sub-ca.crt", dest: "{{ openssl_sub_certs_directory }}/sub-ca.crt", mode: 444 }
+    - { src: "openssl.conf", dest: "{{ openssl_sub_directory }}/openssl.conf", mode: 644 }
+
+- name: "Remove backup certs on localhost"
+  ansible.builtin.file:
+    path: "{{ openssl_local_directory }}/sub-ca"
+    state: absent
+  register: local_dir
+  delegate_to: localhost
+

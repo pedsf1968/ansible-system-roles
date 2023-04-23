@@ -1,32 +1,42 @@
 ---
 # tasks file to remove all certificates files on admin_hostname
 
-- name: "Remove keys {{ openssl_certificate_name }}.key"
+- name: "Remove keys"
   ansible.builtin.file:
-    path: "{{ openssl_private_directory }}/{{ item }}/{{ openssl_certificate_name }}.key"
+    path: "{{ openssl_private_directory }}/{{ item.0 }}/{{ item.1 }}.key"
     state: absent
-  with_items: "{{ openssl_host_list }}"
+  with_nested:
+    - "{{ openssl_hosts }}"
+    - "{{ openssl_certificate_names }}"
 
-- name: "Remove keys {{ openssl_certificate_name }}.key.pem"
+- name: "Remove PEM keys"
   ansible.builtin.file:
-    path: "{{ openssl_private_directory }}/{{ item }}/{{ openssl_certificate_name }}.pem"
+    path: "{{ openssl_private_directory }}/{{ item.0 }}/{{ item.1 }}.pem"
     state: absent
-  with_items: "{{ openssl_host_list }}"
+  with_nested:
+    - "{{ openssl_hosts }}"
+    - "{{ openssl_certificate_names }}"
 
-- name: "Remove certificate {{ openssl_certificate_name }}.crt files on {{ admin_hostname }}"
+- name: "Remove certificate files on {{ admin_hostname }}"
   ansible.builtin.file:
-    path: "{{ openssl_certs_directory }}/{{ item }}/{{ openssl_certificate_name }}.crt"
+    path: "{{ openssl_certs_directory }}/{{ item.0 }}/{{ item.1 }}.crt"
     state: absent
-  with_items: "{{ openssl_host_list }}"
+  with_nested:
+    - "{{ openssl_hosts }}"
+    - "{{ openssl_certificate_names }}"
 
-- name: "Remove CSR {{ certificate_name }}.csr"
+- name: "Remove CSR"
   ansible.builtin.file:
-    path: "{{ openssl_csr_directory }}/{{ item }}/{{ openssl_certificate_name }}.csr"
+    path: "{{ openssl_csr_directory }}/{{ item.0 }}/{{ item.1 }}.csr"
     state: absent
-  with_items: "{{ openssl_host_list }}"
+  with_nested:
+    - "{{ openssl_hosts }}"
+    - "{{ openssl_certificate_names }}"
 
 - name: "Remove openssl configuration file"
   ansible.builtin.file:
-    path: "{{ openssl_conf_directory }}/{{ item }}/openssl.conf"
+    path: "{{ openssl_conf_directory }}/{{ item.0 }}/openssl-{{ item.1 }}.conf"
     state: absent
-  with_items: "{{ openssl_host_list }}"
+  with_nested:
+    - "{{ openssl_hosts }}"
+    - "{{ openssl_certificate_names }}"

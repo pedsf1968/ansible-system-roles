@@ -1,0 +1,62 @@
+---
+# tasks file for openssl-ca-create
+- name: "Delete OLD certificates and keys"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{ openssl_sub_private_directory }}/sub-ca.key"
+    - "{{ openssl_sub_csr_directory }}/sub-ca.csr"
+    - "{{ openssl_sub_certs_directory }}/sub-ca.crt"
+
+- name: "Generate OpenSSL configuration"
+  ansible.builtin.template:
+    src: "openssl.conf.j2"
+    dest: "{{ openssl_sub_directory }}/openssl.conf"
+    owner: "{{ openssl_admin_user_name }}"
+    group: "{{ openssl_admin_user_group }}"
+    mode: "0600" 
+
+
+- name: "Create private key for Sub CA with password protection and {{ openssl_certificate_long_size }} bits"
+  ansible.builtin.command: openssl genrsa -aes256 -passout file:{{ openssl_sub_passfile }} -out {{ openssl_sub_private_directory }}/sub-ca.key {{ openssl_certificate_long_size }}
+  args:
+    chdir: "{{ openssl_sub_directory }}"
+
+- name: "Change right for sub-ca.key"
+  ansible.builtin.file:
+    path: "{{ openssl_sub_private_directory }}/sub-ca.key"
+    owner: "{{ openssl_admin_user_name }}"
+    group: "{{ openssl_admin_user_group }}"
+    mode: "0400"
+
+- name: "Create CSR for Sub CA"
+  ansible.builtin.command: openssl req -config {{ openssl_sub_directory }}/openssl.conf -new -sha256 -batch -passin file:{{ openssl_sub_passfile }} -key {{ openssl_sub_private_directory }}/sub-ca.key -out {{ openssl_sub_csr_directory }}/sub-ca.csr 
+  args:
+    chdir: "{{ openssl_sub_directory }}"
+
+- name: "Change right for Sub CA CSR"
+  ansible.builtin.file:
+    path: "{{ openssl_sub_csr_directory }}/sub-ca.csr"
+    owner: "{{ openssl_admin_user_name }}"
+    group: "{{ openssl_admin_user_group }}"
+    mode: "0444"
+
+- name: "Sign Sub CA certificate"
+  ansible.builtin.command: openssl ca -config openssl.conf -passin file:{{ openssl_root_passfile }} -extensions v3_intermediate_ca -days {{ openssl_certificate_long_days }} -notext -batch -in {{ openssl_sub_csr_directory }}/sub-ca.csr -out {{ openssl_sub_certs_directory }}/sub-ca.crt 
+  args:
+    chdir: "{{ openssl_root_directory }}"
+
+- name: "Change right for Sub CA certificate"
+  ansible.builtin.file:
+    path: "{{ openssl_sub_certs_directory }}/sub-ca.crt"
+    owner: "{{ openssl_admin_user_name }}"
+    group: "{{ openssl_admin_user_group }}"
+    mode: "0444"
+
+- name: "Verification"
+  ansible.builtin.command: openssl x509 -noout -text -in "{{ openssl_sub_certs_directory }}/sub-ca.crt"
+  register: command_output
+
+- debug:
+    var: command_output.stdout_lines

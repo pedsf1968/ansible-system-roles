@@ -1,0 +1,42 @@
+---
+# tasks file for roles/system/openssl/openssl-push-certs
+- name: "Create directory for certs"
+  ansible.builtin.file:
+    path: "{{ openssl_remote_directory }}"
+    state: directory
+    owner: "{{ openssl_remote_owner }}"
+    group: "{{ openssl_remote_group }}"
+    mode: '0700'
+
+- name: "Copy CA certs files"
+  ansible.builtin.copy:
+    src: "{{ openssl_local_directory }}/{{ ansible_hostname }}/{{ ca_certificate_name }}.crt"
+    dest: "{{ openssl_remote_directory }}"
+    owner: "{{ openssl_remote_owner }}"
+    group: "{{ openssl_remote_group }}"
+    mode: '0444'
+
+- name: "Copy certs files"
+  ansible.builtin.copy:
+    src: "{{ openssl_local_directory }}/{{ ansible_hostname }}/{{ item }}.crt"
+    dest: "{{ openssl_remote_directory }}"
+    owner: "{{ openssl_remote_owner }}"
+    group: "{{ openssl_remote_group }}"
+    mode: '0444'
+  with_items: "{{ openssl_certificate_names }}"
+
+- name: "Copy key files"
+  ansible.builtin.copy:
+    src: "{{ openssl_local_directory }}/{{ ansible_hostname }}/{{ item }}.key"
+    dest: "{{ openssl_remote_directory }}"
+    owner: "{{ openssl_remote_owner }}"
+    group: "{{ openssl_remote_group }}"
+    mode: '0400'
+  with_items: "{{ openssl_certificate_names }}"
+
+- name: "Remove local certs directories"
+  ansible.builtin.file:
+    path: "{{ openssl_local_directory }}/{{ ansible_hostname }}"
+    state: absent
+  register: local_dir
+  delegate_to: localhost

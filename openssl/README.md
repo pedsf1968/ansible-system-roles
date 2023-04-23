@@ -2,19 +2,28 @@
 Roles usint OpenSSL to create certificates and keys on CA server
 
 # Root CA initialisation
-use openssl-server-install.yml to create and launch CA server installation
+use openssl-server-install.yml to create Root and Sub CA server
 
 ## openssl-passfile-create
 Create file to store OpenSSL passphrase on CA server
 
+## openssl-passfile-remove
+Remove OpenSSL passphrase file
+
 ## openssl-init
 Create repositories to store OpenSSL files
 
-## openssl-ca-create
+## openssl-create-root-ca
 Create Root CA certificate and key
 
-## openssl-passfile-remove
-Remove OpenSSL passphrase file
+## openssl-create-sub-ca
+Create Sub CA certificate and key
+
+## openssl-pull-sub-ca-certs
+Copy Sub CA certs from Root CA on localhost
+
+## openssl-push-sub-ca-certs
+Copy Sub CA certs from localhost to Sub CA server
 
 # Certificates creation
 Roles to generate keys and certificates

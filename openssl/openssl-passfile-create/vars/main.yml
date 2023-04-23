@@ -1,0 +1,7 @@
+---
+# vars file for openssl-passfile-create
+# administrator parameters
+openssl_admin_user_name: "{{ ca_admin_user_name }}"
+openssl_admin_user_group: "{{ ca_admin_user_group }}"
+openssl_passfile_owner: "{{ ca_admin_user_name }}"
+openssl_passfile_group: "{{ ca_admin_user_group }}"

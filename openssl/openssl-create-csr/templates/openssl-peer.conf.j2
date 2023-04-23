@@ -16,13 +16,25 @@ emailAddress                    = {{ openssl_email_address }}
 commonName                      = {{ item.0 }}.{{ domain_name }}
 emailAddress                    = {{ openssl_email_address }}
 
-[ v3_req ]
-basicConstraints       = CA:false
-keyUsage               = digitalSignature, keyEncipherment
-extendedKeyUsage       = clientAuth
-subjectAltName         = @altNames
+[ v3_ca ]
+# Extensions for a typical CA (`man x509v3_config`).
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer
+basicConstraints = critical, CA:true, pathlen:0
+keyUsage = critical, digitalSignature, cRLSign, keyCertSign
 
-[ altNames ]
+[ v3_req ]
+basicConstraints       = CA:FALSE
+nsCertType = server
+nsComment = "OpenSSL Generated Server Certificate"
+authorityKeyIdentifier = keyid,issuer:always
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage       = clientAuth, serverAuth
+subjectAltName         = @alt_names
+subjectKeyIdentifier = hash
+
+
+[ alt_names ]
 DNS.1 = localhost
 DNS.2 = {{ item.0 }}
 DNS.3 = {{ item.0 }}.{{ domain_name }}

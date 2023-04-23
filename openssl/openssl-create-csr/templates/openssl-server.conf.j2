@@ -1,6 +1,6 @@
 [ req ]
 prompt                 = no
-days                   = 365
+days                   = {{ openssl_certificate_short_days }}
 distinguished_name     = req_distinguished_name
 req_extensions         = v3_req
 
@@ -13,17 +13,29 @@ organizationName                = {{ openssl_organization_name }}
 organizationalUnitName          = {{ openssl_organizational_unit }}
 commonName                      = {{ ansible_hostname }}
 emailAddress                    = {{ openssl_email_address }}
-commonName                      = {{ item }}.{{ domain_name }}
+commonName                      = {{ item.0 }}.{{ domain_name }}
 emailAddress                    = {{ openssl_email_address }}
 
-[ v3_req ]
-basicConstraints       = CA:false
-extendedKeyUsage       = serverAuth
-subjectAltName         = @sans
+[ v3_ca ]
+# Extensions for a typical CA (`man x509v3_config`).
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer
+basicConstraints = critical, CA:true, pathlen:0
+keyUsage = critical, digitalSignature, cRLSign, keyCertSign
 
-[ sans ]
+[ v3_req ]
+basicConstraints       = CA:FALSE
+nsCertType = server
+nsComment = "OpenSSL Generated Server Certificate"
+authorityKeyIdentifier = keyid,issuer:always
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage       = clientAuth, serverAuth
+subjectAltName         = @alt_names
+subjectKeyIdentifier = hash
+
+[ alt_names ]
 DNS.1 = localhost
-DNS.2 = {{ item }}
-DNS.3 = {{ item }}.{{ domain_name }}
-IP.1 = {{ hostvars[item].ansible_host }}
+DNS.2 = {{ item.0 }}
+DNS.3 = {{ item.0 }}.{{ domain_name }}
+IP.1 = {{ hostvars[item.0].ansible_host }}
 IP.2 = 127.0.0.1

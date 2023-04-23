@@ -1,0 +1,29 @@
+---
+# tasks file for roles/system/openssl/openssl-pull-sub-ca-certs
+- name: "Create directory to backup certs on localhost"
+  ansible.builtin.file:
+    path: "{{ openssl_local_directory }}/sub-ca/{{ item }}"
+    state: directory
+    owner: "{{ admin_username }}"
+    group: "{{ admin_username }}"
+    mode: '0700'
+  register: local_dir
+  delegate_to: localhost
+  with_items:
+    - "private"
+    - "csr"
+    - "certs"
+
+- name: "Fetch CA certs files"
+  ansible.builtin.fetch:
+    src: "{{ item.src }}"
+    dest: "{{ openssl_local_directory }}/sub-ca/{{ item.dest }}"
+    owner: "{{ admin_username }}"
+    group: "{{ admin_username }}"
+    mode: '0400'
+    flat: yes
+  with_items:
+    - { src: "{{ openssl_sub_private_directory }}/sub-ca.key", dest: private/sub-ca.key }
+    - { src: "{{ openssl_sub_csr_directory }}/sub-ca.csr", dest: csr/sub-ca.csr }
+    - { src: "{{ openssl_sub_certs_directory }}/sub-ca.crt", dest: certs/sub-ca.crt }
+    - { src: "{{ openssl_sub_directory }}/openssl.conf", dest: openssl.conf }

@@ -1,11 +1,11 @@
 ---
-# Root CA install
+# Root CA and Sub CA server install
 
-########################################################################## INIT
 - name: "Gather facts"
   hosts: ["admin","security"]
   gather_facts: true
 
+######################################################################## UPDATE
 - name: "Update system and set FireWall rules"
   hosts: ["security"]
   become: yes
@@ -36,20 +36,58 @@
     create_user_shell: "/bin/bash"
     create_user_system: true
   roles:
-    #- role: "user/group-create"
-    #- role: "user/user-create"
+#    - role: "user/group-create"
+#    - role: "user/user-create"
 
-
-################################################################ LAUNCH INSTALL
-- name: "Generate Root Certificates"
-  hosts: ["security"]
+############################################################### ROOT CA INSTALL
+- name: "Generate passfile for Root CA"
+  hosts: ["root-ca"]
   become: yes
-  gather_facts: yes
+  gather_facts: false
   vars_prompt:
-  - name: secret_ca_passphrase
-    prompt: CA certificate passphrase
+  - name: openssl_secret_passphrase
+    prompt: Root CA certificate passphrase
+  vars:
+    openssl_passfile: "{{ ca_directory }}/root-ca/.passfile"
+    openssl_destination_directory: "{{ ca_directory }}/root-ca"
   roles:
+    - role: "system/openssl/openssl-remove-root-ca"
+    - role: "system/openssl/openssl-server-init"
     - role: "system/openssl/openssl-passfile-create"
-    - role: "system/openssl/openssl-init"
-    - role: "system/openssl/openssl-ca-create"
+    - role: "system/openssl/openssl-create-root-ca"
+
+################################################################ SUB CA INSTALL
+- name: "Generate passfile for Sub CA"
+  hosts: ["root-ca"]
+  become: yes
+  gather_facts: false
+  vars_prompt:
+  - name: openssl_secret_passphrase
+    prompt: Sub CA certificate passphrase
+  vars:
+    openssl_passfile: "{{ ca_directory }}/sub-ca/.passfile"
+    openssl_destination_directory: "{{ ca_directory }}/sub-ca"
+  roles:
+    - role: "system/openssl/openssl-server-init"
+    - role: "system/openssl/openssl-passfile-create"   
+    - role: "system/openssl/openssl-create-sub-ca"
+    - role: "system/openssl/openssl-pull-sub-ca-certs"
     - role: "system/openssl/openssl-passfile-remove"
+
+- name: "Coopy certs to Sub CA"
+  hosts: ["sub-ca"]
+  become: yes
+  gather_facts: false
+  vars:
+    openssl_destination_directory: "{{ ca_directory }}/sub-ca"
+  roles:
+    - role: "system/openssl/openssl-server-init"
+    - role: "system/openssl/openssl-push-sub-ca-certs"
+
+- name: "Remove Root CA passfile"
+  hosts: ["root-ca"]
+  become: yes
+  gather_facts: false
+  vars:
+    openssl_passfile: "{{ ca_directory }}/root-ca/.passfile"
+  roles:

@@ -3,5 +3,5 @@
 
 - name: "Remove passphrase file"
   ansible.builtin.file:
-    path: "{{ openssl_passfile_directory }}/passphrase.txt"
+    path: "{{ openssl_passfile }}"
     state: absent
