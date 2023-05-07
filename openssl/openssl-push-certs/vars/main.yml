@@ -8,3 +8,5 @@ openssl_passfile_group: "{{ openssl_admin_user_group }}"
 
 # Directories
 openssl_local_directory: /home/ansible/ca/openssl
+
+openssl_sub_prefix: "sub-"

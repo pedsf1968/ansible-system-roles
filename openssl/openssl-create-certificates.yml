@@ -17,8 +17,8 @@
     openssl_hosts: "{{ groups['etcd_nodes'] }}"
     openssl_certificate_names: ["server"]
     openssl_certificate_type: "server"
-    openssl_passfile: "{{ openssl_sub_directory }}/.passfile"
     openssl_destination_directory: "{{ openssl_sub_directory }}"
+    openssl_passfile: "{{ openssl_sub_passfile }}"
   roles:
     - role: "system/openssl/openssl-passfile-create"
     - role: "system/openssl/openssl-create-key"
