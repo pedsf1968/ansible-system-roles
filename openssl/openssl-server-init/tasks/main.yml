@@ -10,12 +10,12 @@
     group: "{{ openssl_admin_user_group }}"
     mode: '0700'
   with_items:
-    - "{{ openssl_destination_directory }}"
-    - "{{ openssl_destination_directory }}/private"
-    - "{{ openssl_destination_directory }}/csr"
-    - "{{ openssl_destination_directory }}/certs"
-    - "{{ openssl_destination_directory }}/newcerts"
-    - "{{ openssl_destination_directory }}/crl"
+    - "{{ openssl_sub_directory }}"
+    - "{{ openssl_sub_private_directory }}"
+    - "{{ openssl_sub_csr_directory }}"
+    - "{{ openssl_sub_certs_directory }}"
+    - "{{ openssl_sub_newcerts_directory }}"
+    - "{{ openssl_sub_crl_directory }}"
 
 - name: "Initialise value for serial file"
   ansible.builtin.command: openssl rand -hex 16

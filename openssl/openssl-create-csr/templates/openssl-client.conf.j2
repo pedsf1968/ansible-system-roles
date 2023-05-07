@@ -1,9 +1,10 @@
 [ req ]
-prompt                 = no
+default_md              = sha256
+default_bits           = {{ openssl_certificate_short_size }}
 days                   = {{ openssl_certificate_short_days }}
 distinguished_name     = req_distinguished_name
 req_extensions         = v3_req
-
+prompt                 = no
 
 [ req_distinguished_name ]
 countryName                     = {{ openssl_country }}
@@ -11,20 +12,19 @@ stateOrProvinceName             = {{ openssl_state }}
 localityName                    = {{ openssl_locality }}
 organizationName                = {{ openssl_organization_name }}
 organizationalUnitName          = {{ openssl_organizational_unit }}
-commonName                      = {{ ansible_hostname }}
-emailAddress                    = {{ openssl_email_address }}
 commonName                      = {{ item.0 }}.{{ domain_name }}
 emailAddress                    = {{ openssl_email_address }}
 
 [ v3_req ]
-basicConstraints       = CA:false
-keyUsage               = digitalSignature, keyEncipherment
-extendedKeyUsage       = clientAuth
-subjectAltName         = @altNames
+basicConstraints = CA:FALSE
+keyUsage = digitalSignature, keyEncipherment
+extendedKeyUsage = clientAuth
+nsComment = "OpenSSL Generated Server Certificate"
+subjectAltName         = @alt_names
 
-[ altNames ]
-DNS.1 = localhost
+[ alt_names ]
+DNS.1 = {{ item.0 }}.{{ domain_name }}
 DNS.2 = {{ item.0 }}
-DNS.3 = {{ item.0 }}.{{ domain_name }}
+DNS.3 = localhost
 IP.1 = {{ hostvars[item.0].ansible_host }}
 IP.2 = 127.0.0.1

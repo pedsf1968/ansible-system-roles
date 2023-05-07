@@ -1,9 +1,10 @@
 [ req ]
-prompt                 = no
+default_md              = sha256
+default_bits           = {{ openssl_certificate_short_size }}
 days                   = {{ openssl_certificate_short_days }}
 distinguished_name     = req_distinguished_name
 req_extensions         = v3_req
-
+prompt                 = no
 
 [ req_distinguished_name ]
 countryName                     = {{ openssl_country }}
@@ -11,31 +12,40 @@ stateOrProvinceName             = {{ openssl_state }}
 localityName                    = {{ openssl_locality }}
 organizationName                = {{ openssl_organization_name }}
 organizationalUnitName          = {{ openssl_organizational_unit }}
-commonName                      = {{ ansible_hostname }}
-emailAddress                    = {{ openssl_email_address }}
 commonName                      = {{ item.0 }}.{{ domain_name }}
 emailAddress                    = {{ openssl_email_address }}
 
-[ v3_ca ]
-# Extensions for a typical CA (`man x509v3_config`).
-subjectKeyIdentifier = hash
-authorityKeyIdentifier = keyid:always,issuer
-basicConstraints = critical, CA:true, pathlen:0
-keyUsage = critical, digitalSignature, cRLSign, keyCertSign
-
 [ v3_req ]
-basicConstraints       = CA:FALSE
+basicConstraints = CA:FALSE
+keyUsage = digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth
 nsCertType = server
 nsComment = "OpenSSL Generated Server Certificate"
-authorityKeyIdentifier = keyid,issuer:always
-keyUsage = critical, digitalSignature, keyEncipherment
-extendedKeyUsage       = clientAuth, serverAuth
 subjectAltName         = @alt_names
-subjectKeyIdentifier = hash
 
 [ alt_names ]
-DNS.1 = localhost
-DNS.2 = {{ item.0 }}
-DNS.3 = {{ item.0 }}.{{ domain_name }}
-IP.1 = {{ hostvars[item.0].ansible_host }}
-IP.2 = 127.0.0.1
+DNS.1 = k8s-etcd-lb-vip
+DNS.2 = k8s-etcd-lb-vip.{{ domain_name }}
+DNS.3 = k8s-etcd-01
+DNS.4 = k8s-etcd-01.{{ domain_name }}
+DNS.5 = k8s-etcd-02
+DNS.6 = k8s-etcd-02.{{ domain_name }}
+DNS.7 = k8s-etcd-03
+DNS.8 = k8s-etcd-03.{{ domain_name }}
+DNS.9 = k8s-etcd-04
+DNS.10 = k8s-etcd-04.{{ domain_name }}
+DNS.11 = k8s-etcd-05
+DNS.12 = k8s-etcd-05.{{ domain_name }}
+IP.1 = 10.1.66.30
+IP.2 = 10.1.66.31
+IP.3 = 10.1.66.32
+IP.4 = 10.1.66.33
+IP.5 = 10.1.66.34
+IP.6 = 10.1.66.35
+IP.7 = 127.0.0.1
+
+#DNS.1 = {{ item.0 }}.{{ domain_name }}
+#DNS.2 = {{ item.0 }}
+#DNS.3 = localhost
+#IP.1 = {{ hostvars[item.0].ansible_host }}
+#IP.2 = 127.0.0.1

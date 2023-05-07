@@ -11,31 +11,31 @@
     mode: "0600" 
 
 - name: "Create private key for CA with password protection and {{ openssl_certificate_long_size }} bits"
-  ansible.builtin.command: openssl genrsa -aes256 -passout file:{{ openssl_root_passfile }} -out {{ openssl_root_private_directory }}/ca.key {{ openssl_certificate_long_size }}
+  ansible.builtin.command: openssl genrsa -aes256 -passout file:{{ openssl_root_passfile }} -out {{ openssl_root_private_directory }}/{{ openssl_root_prefix }}ca.key {{ openssl_certificate_long_size }}
   args:
     chdir: "{{ openssl_root_directory }}"
 
 - name: "Change right for Root CA key"
   ansible.builtin.file:
-    path: "{{ openssl_root_private_directory }}/ca.key"
+    path: "{{ openssl_root_private_directory }}/{{ openssl_root_prefix }}ca.key"
     owner: "{{ openssl_admin_user_name }}"
     group: "{{ openssl_admin_user_group }}"
     mode: "0400"
 
 - name: "Create cert for CA with password protection for {{ openssl_certificate_long_days }} days"
-  ansible.builtin.command: openssl req -config openssl.conf -new -x509 -days {{ openssl_certificate_long_days }} -sha256 -passin file:{{ openssl_root_passfile }} -extensions v3_ca -key {{ openssl_root_private_directory }}/ca.key -new -x509 -days {{ openssl_certificate_long_days }} -batch -out {{ openssl_root_certs_directory }}/ca.crt 
+  ansible.builtin.command: openssl req -config openssl.conf -new -x509 -days {{ openssl_certificate_long_days }} -sha256 -passin file:{{ openssl_root_passfile }} -extensions v3_ca -key {{ openssl_root_private_directory }}/{{ openssl_root_prefix }}ca.key -new -x509 -days {{ openssl_certificate_long_days }} -batch -out {{ openssl_root_certs_directory }}/{{ openssl_root_prefix }}ca.crt 
   args:
     chdir: "{{ openssl_root_directory }}"
 
 - name: "Change right for Root CA certificate"
   ansible.builtin.file:
-    path: "{{ openssl_root_certs_directory }}/ca.crt"
+    path: "{{ openssl_root_certs_directory }}/{{ openssl_root_prefix }}ca.crt"
     owner: "{{ openssl_admin_user_name }}"
     group: "{{ openssl_admin_user_group }}"
     mode: "0444"
 
 - name: "Verification"
-  ansible.builtin.command: openssl x509 -noout -text -in "{{ openssl_root_certs_directory }}/ca.crt"
+  ansible.builtin.command: openssl x509 -noout -text -in "{{ openssl_root_certs_directory }}/{{ openssl_root_prefix }}ca.crt"
   register: command_output
 
 - debug:

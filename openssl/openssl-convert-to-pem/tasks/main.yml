@@ -1,16 +1,16 @@
 ---
 # tasks file to convert key in PEM format
 - name: "Convert CRT file in PEM format"
-  ansible.builtin.command: openssl x509 -in "{{ openssl_private_directory }}/{{ item.0 }}/{{ item.1 }}.crt" -out "{{ openssl_private_directory }}/{{ item.0 }}/{{ item.1 }}.pem" -outform PEM
+  ansible.builtin.command: openssl x509 -in "{{ openssl_sub_private_directory }}/{{ item.0 }}/{{ item.1 }}.crt" -out "{{ openssl_private_directory }}/{{ item.0 }}/{{ item.1 }}.crt" -outform PEM
   args:
-    chdir: "{{ openssl_ca_directory }}"
+    chdir: "{{ openssl_sub_directory }}"
   with_nested:
     - "{{ openssl_hosts }}"
     - "{{ openssl_certificate_names }}"
 
 - name: "Change right for pem file"
   ansible.builtin.file:
-    path: "{{ openssl_private_directory }}/{{ item.0 }}/{{ item.1 }}.pem"
+    path: "{{ openssl_sub_private_directory }}/{{ item.0 }}/{{ item.1 }}.pem"
     mode: "0400"
   with_nested:
     - "{{ openssl_hosts }}"

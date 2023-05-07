@@ -48,13 +48,13 @@
   - name: openssl_secret_passphrase
     prompt: Root CA certificate passphrase
   vars:
-    openssl_passfile: "{{ ca_directory }}/root-ca/.passfile"
-    openssl_destination_directory: "{{ ca_directory }}/root-ca"
+    openssl_passfile: "{{ openssl_root_passfile }}"
+    openssl_destination_directory: "{{ openssl_root_directory }}"
   roles:
-    - role: "system/openssl/openssl-remove-root-ca"
-    - role: "system/openssl/openssl-server-init"
-    - role: "system/openssl/openssl-passfile-create"
-    - role: "system/openssl/openssl-create-root-ca"
+    #- role: "system/openssl/openssl-remove-root-ca"
+    #- role: "system/openssl/openssl-server-init"
+    #- role: "system/openssl/openssl-passfile-create"
+    #- role: "system/openssl/openssl-create-root-ca"
 
 ################################################################ SUB CA INSTALL
 - name: "Generate passfile for Sub CA"
@@ -65,21 +65,21 @@
   - name: openssl_secret_passphrase
     prompt: Sub CA certificate passphrase
   vars:
-    openssl_passfile: "{{ ca_directory }}/sub-ca/.passfile"
-    openssl_destination_directory: "{{ ca_directory }}/sub-ca"
+    openssl_passfile: "{{ openssl_sub_passfile }}"
+    openssl_destination_directory: "{{ openssl_sub_directory }}"
   roles:
-    - role: "system/openssl/openssl-server-init"
-    - role: "system/openssl/openssl-passfile-create"   
-    - role: "system/openssl/openssl-create-sub-ca"
+    #- role: "system/openssl/openssl-server-init"
+    #- role: "system/openssl/openssl-passfile-create"   
+    #- role: "system/openssl/openssl-create-sub-ca"
     - role: "system/openssl/openssl-pull-sub-ca-certs"
-    - role: "system/openssl/openssl-passfile-remove"
+    #- role: "system/openssl/openssl-passfile-remove"
 
 - name: "Coopy certs to Sub CA"
   hosts: ["sub-ca"]
   become: yes
   gather_facts: false
   vars:
-    openssl_destination_directory: "{{ ca_directory }}/sub-ca"
+    openssl_destination_directory: "{{ openssl_sub_directory }}"
   roles:
     - role: "system/openssl/openssl-server-init"
     - role: "system/openssl/openssl-push-sub-ca-certs"
@@ -89,5 +89,5 @@
   become: yes
   gather_facts: false
   vars:
-    openssl_passfile: "{{ ca_directory }}/root-ca/.passfile"
+    openssl_passfile: "{{ openssl_root_passfile }}"
   roles:

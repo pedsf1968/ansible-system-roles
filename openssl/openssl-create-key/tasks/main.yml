@@ -2,7 +2,7 @@
 # tasks file to generate private key on dedicated directory
 - name: "Create directory for private key"
   ansible.builtin.file:
-    path: "{{ openssl_private_directory }}/{{ item }}"
+    path: "{{ openssl_sub_private_directory }}/{{ item }}"
     state: directory
     owner: "{{ openssl_admin_user_name }}"
     group: "{{ openssl_admin_user_group }}"
@@ -10,16 +10,16 @@
   with_items: "{{ openssl_hosts }}"
 
 - name: "Generate private key"
-  ansible.builtin.command: openssl genrsa -passout file:.passphrase -out {{ openssl_private_directory }}/{{ item.0 }}/{{ item.1 }}.key {{ openssl_certificate_short_size }}
+  ansible.builtin.command: openssl genrsa -passout file:{{ openssl_sub_passfile }} -out {{ openssl_sub_private_directory }}/{{ item.0 }}/{{ item.1 }}.key {{ openssl_certificate_short_size }}
   args:
-    chdir: "{{ openssl_ca_directory }}"
+    chdir: "{{ openssl_sub_directory }}"
   with_nested:
     - "{{ openssl_hosts }}"
     - "{{ openssl_certificate_names }}"
 
 - name: "Change right for key file"
   ansible.builtin.file:
-    path: "{{ openssl_private_directory }}/{{ item.0 }}/{{ item.1 }}.key"
+    path: "{{ openssl_sub_private_directory }}/{{ item.0 }}/{{ item.1 }}.key"
     owner: "{{ openssl_admin_user_name }}"
     group: "{{ openssl_admin_user_group }}"
     mode: "0400"

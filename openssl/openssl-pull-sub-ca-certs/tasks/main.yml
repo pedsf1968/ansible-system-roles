@@ -14,7 +14,7 @@
     - "csr"
     - "certs"
 
-- name: "Fetch CA certs files"
+- name: "Fetch Sub CA certs files"
   ansible.builtin.fetch:
     src: "{{ item.src }}"
     dest: "{{ openssl_local_directory }}/sub-ca/{{ item.dest }}"

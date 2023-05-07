@@ -3,24 +3,21 @@ default_ca = CA_default
 
 [ CA_default ]
 prompt            = no
-dir               = {{ openssl_ca_directory }}/root-ca
-certs             = $dir/certs
-crl_dir           = $dir/crl
-new_certs_dir     = $dir/newcerts
-database          = $dir/index.txt
-serial            = $dir/serial
-RANDFILE          = $dir/private/.rand
+dir               = {{ openssl_root_directory }}
+database          = {{ openssl_root_directory }}/index.txt
+serial            = {{ openssl_root_directory }}/serial
+crlnumber         = {{ openssl_root_directory }}/crlnumber
+private_key       = {{ openssl_root_private_directory }}/{{ openssl_root_prefix }}ca.key
+RANDFILE          = {{ openssl_root_private_directory }}/.rand
+certs             = {{ openssl_root_certs_directory }}
+certificate       = {{ openssl_root_certs_directory }}/{{ openssl_root_prefix }}ca.crt
+new_certs_dir     = {{ openssl_root_newcerts_directory }}
+crl_dir           = {{ openssl_root_crl_directory }}
+crl               = {{ openssl_root_crl_directory }}/{{ openssl_root_prefix }}ca.crl
 
-private_key       = $dir/private/ca.key
-certificate       = $dir/certs/ca.crt
-
-crlnumber         = $dir/crlnumber
-crl               = $dir/crl/ca.crl
 crl_extensions    = crl_ext
 default_crl_days  = 30
-
 default_md          = sha256
-
 name_opt          = ca_default
 cert_opt          = ca_default
 default_days      = {{ openssl_certificate_short_days }}
@@ -61,7 +58,7 @@ stateOrProvinceName             = {{ openssl_state }}
 localityName                    = {{ openssl_locality }}
 0.organizationName                = {{ openssl_organization_name }}
 0.organizationalUnitName          = {{ openssl_organizational_unit }}
-commonName                      = root-ca.{{ domain_name }}
+commonName                      = {{ openssl_root_prefix }}ca.{{ domain_name }}
 emailAddress                    = {{ openssl_email_address }}
 
 # Optionally, specify some defaults.
@@ -70,7 +67,7 @@ stateOrProvinceName_default     = {{ openssl_state }}
 localityName_default            = {{ openssl_locality }}
 0.organizationName_default        = {{ openssl_organization_name }}
 0.organizationalUnitName_default  = {{ openssl_organizational_unit }}
-commonName_default              = root-ca.{{ domain_name }}
+commonName_default              = {{ openssl_root_prefix }}ca.{{ domain_name }}
 emailAddress_default            = {{ openssl_email_address }}
 
 [ v3_ca ]
@@ -84,7 +81,6 @@ subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid:always,issuer
 basicConstraints = critical, CA:true, pathlen:0
 keyUsage = critical, digitalSignature, cRLSign, keyCertSign
-
 
 [ server_cert ]
 basicConstraints = CA:FALSE

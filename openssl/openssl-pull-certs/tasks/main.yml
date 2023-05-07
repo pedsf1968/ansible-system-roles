@@ -13,17 +13,17 @@
 
 - name: "Fetch CA certs files"
   ansible.builtin.fetch:
-    src: "{{ openssl_certs_directory }}/{{ openssl_ca_certificate_name }}.crt"
-    dest: "{{ openssl_local_directory }}/{{ item }}/{{ openssl_ca_certificate_name }}.crt"
+    src: "{{ openssl_sub_certs_directory }}/sub-ca.crt"
+    dest: "{{ openssl_local_directory }}/{{ item }}/sub-ca.crt"
     owner: "{{ admin_username }}"
     group: "{{ admin_username }}"
-    mode: '0444'
+    mode: '0400'
     flat: yes
   with_items: "{{ openssl_hosts }}"
 
 - name: "Fetch certs files"
   ansible.builtin.fetch:
-    src: "{{ openssl_certs_directory }}/{{ item.0 }}/{{ item.1 }}.crt"
+    src: "{{ openssl_sub_certs_directory }}/{{ item.0 }}/{{ item.1 }}.crt"
     dest: "{{ openssl_local_directory }}/{{ item.0 }}/{{ item.1 }}.crt"
     owner: "{{ admin_username }}"
     group: "{{ admin_username }}"
@@ -35,7 +35,7 @@
 
 - name: "Fetch key files"
   ansible.builtin.fetch:
-    src: "{{ openssl_private_directory }}/{{ item.0 }}/{{ item.1 }}.key"
+    src: "{{ openssl_sub_private_directory }}/{{ item.0 }}/{{ item.1 }}.key"
     dest: "{{ openssl_local_directory }}/{{ item.0 }}/{{ item.1 }}.key"
     owner: "{{ admin_username }}"
     group: "{{ admin_username }}"

@@ -5,3 +5,14 @@ openssl_admin_user_name: "{{ ca_admin_user_name }}"
 openssl_admin_user_group: "{{ ca_admin_user_group }}"
 openssl_passfile_owner: "{{ ca_admin_user_name }}"
 openssl_passfile_group: "{{ ca_admin_user_group }}"
+
+# Directories
+openssl_ca_directory: "{{ ca_directory }}/openssl"
+
+openssl_root_prefix: "root-"
+openssl_root_directory: "{{ openssl_ca_directory }}/{{ openssl_root_prefix }}ca"
+openssl_root_passfile: "{{ openssl_root_directory }}/.passfile"
+
+openssl_sub_prefix: "sub-"
+openssl_sub_directory: "{{ openssl_ca_directory }}/{{ openssl_sub_prefix }}ca"
+openssl_sub_passfile: "{{ openssl_sub_directory }}/.passfile"

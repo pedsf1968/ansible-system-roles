@@ -1,0 +1,41 @@
+---
+# Create certificates on Sub CA and move files to each servers
+
+- name: "Gather facts"
+  hosts: ["admin","sub-ca","etcd_nodes"]
+  gather_facts: true
+
+###################################################### GENERETE CERTS ON SUB CA
+- name: "Generate Certificate on Sub CA"
+  hosts: ["sub-ca"]
+  become: yes
+  gather_facts: false
+  vars_prompt:
+  - name: openssl_secret_passphrase
+    prompt: Sub CA certificate passphrase
+  vars:
+    openssl_hosts: "{{ groups['etcd_nodes'] }}"
+    openssl_certificate_names: ["server"]
+    openssl_certificate_type: "server"
+    openssl_passfile: "{{ openssl_sub_directory }}/.passfile"
+    openssl_destination_directory: "{{ openssl_sub_directory }}"
+  roles:
+    - role: "system/openssl/openssl-passfile-create"
+    - role: "system/openssl/openssl-create-key"
+    - role: "system/openssl/openssl-create-csr"
+    - role: "system/openssl/openssl-create-crt"
+    - role: "system/openssl/openssl-pull-certs"    
+    - role: "system/openssl/openssl-passfile-remove"
+
+#################################################### MOVE CERTS ON EACH SERVERS
+- name: "Copy certificates on hosts"
+  hosts: ["etcd_nodes"]
+  become: yes
+  gather_facts: false
+  vars:
+    openssl_certificate_names: ["server"]
+    openssl_remote_directory: "/etc/etcd/pki"
+    openssl_remote_owner: "etcd"
+    openssl_remote_group: "etcd"
+  roles:
+    - role: "system/openssl/openssl-push-certs"

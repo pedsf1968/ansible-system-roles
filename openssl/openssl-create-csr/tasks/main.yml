@@ -2,18 +2,9 @@
 # tasks file for openssl-create-csr
 # need to generate key before with certificate-create-key
 
-- name: "Create directory for OpenSSL configuration files"
-  ansible.builtin.file:
-    path: "{{ openssl_conf_directory }}/{{ item }}"
-    state: directory
-    owner: "{{ openssl_admin_user_name }}"
-    group: "{{ openssl_admin_user_group }}"
-    mode: '0700'
-  with_items: "{{ openssl_hosts }}"
-
 - name: "Create directory for CSR"
   ansible.builtin.file:
-    path: "{{ openssl_csr_directory }}/{{ item }}"
+    path: "{{ openssl_sub_csr_directory }}/{{ item }}"
     state: directory
     owner: "{{ openssl_admin_user_name }}"
     group: "{{ openssl_admin_user_group }}"
@@ -23,7 +14,7 @@
 - name: "Generate CSR configuration on CSR directory for {{ openssl_certificate_type }} type"
   ansible.builtin.template:
     src: "openssl-{{ openssl_certificate_type }}.conf.j2"
-    dest: "{{ openssl_conf_directory }}/{{ item.0 }}/openssl-{{ item.1 }}.conf"
+    dest: "{{ openssl_sub_csr_directory }}/{{ item.0 }}/openssl-{{ item.1 }}.conf"
     owner: "{{ openssl_admin_user_name }}"
     group: "{{ openssl_admin_user_group }}"
     mode: "0600"
@@ -32,16 +23,16 @@
     - "{{ openssl_certificate_names }}"
 
 - name: "Create CSR"
-  ansible.builtin.command: openssl req -new -config {{ openssl_conf_directory }}/{{ item.0 }}/openssl-{{ item.1 }}.conf -passin file:.passphrase -batch -key {{ openssl_private_directory }}/{{ item.0 }}/{{ item.1 }}.key -out {{ openssl_csr_directory }}/{{ item.0 }}/{{ item.1 }}.csr
+  ansible.builtin.command: openssl req -new -config {{ openssl_sub_csr_directory }}/{{ item.0 }}/openssl-{{ item.1 }}.conf -passin file:{{ openssl_passfile }} -batch -key {{ openssl_sub_private_directory }}/{{ item.0 }}/{{ item.1 }}.key -out {{ openssl_sub_csr_directory }}/{{ item.0 }}/{{ item.1 }}.csr
   args:
-    chdir: "{{ openssl_ca_directory }}"
+    chdir: "{{ openssl_sub_directory }}"
   with_nested:
     - "{{ openssl_hosts }}"
     - "{{ openssl_certificate_names }}"
 
 - name: "Change right for CSR file"
   ansible.builtin.file:
-    path: "{{ openssl_csr_directory }}/{{ item.0 }}/{{ item.1 }}.csr"
+    path: "{{ openssl_sub_csr_directory }}/{{ item.0 }}/{{ item.1 }}.csr"
     owner: "{{ openssl_admin_user_name }}"
     group: "{{ openssl_admin_user_group }}"
     mode: "0444"

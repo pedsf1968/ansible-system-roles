@@ -10,7 +10,7 @@
 
 - name: "Copy CA certs files"
   ansible.builtin.copy:
-    src: "{{ openssl_local_directory }}/{{ ansible_hostname }}/{{ ca_certificate_name }}.crt"
+    src: "{{ openssl_local_directory }}/{{ ansible_hostname }}/{{ openssl_root_prefix }}ca.crt"
     dest: "{{ openssl_remote_directory }}"
     owner: "{{ openssl_remote_owner }}"
     group: "{{ openssl_remote_group }}"
