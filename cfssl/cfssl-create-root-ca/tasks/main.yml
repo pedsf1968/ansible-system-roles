@@ -1,0 +1,31 @@
+---
+# tasks file for cfssl-create-root-ca
+# launch cfssl-server-init to create files and directories
+
+- name: "Generate cfssl configuration"
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "{{ cfssl_root_directory }}/{{ item }}"
+    owner: "{{ cfssl_admin_user_name }}"
+    group: "{{ cfssl_admin_user_group }}"
+    mode: "0600"
+  with_items:
+    - "cfssl.json" 
+    - "{{ cfssl_root_prefix}}ca.json"
+
+- name: "Create certificates for Root CA"
+  ansible.builtin.shell: cfssl gencert -initca {{ cfssl_root_prefix }}ca.json | cfssljson -bare {{ cfssl_root_prefix }}ca
+  args:
+    chdir: "{{ cfssl_root_directory }}"
+
+- name: "Change certs owner and mode"
+  ansible.builtin.file:
+    path: "{{ cfssl_root_directory }}/{{ item.file }}"
+    owner: "{{ cfssl_admin_user_name }}"
+    group: "{{ cfssl_admin_user_group }}"
+    mode: "{{ item.mode }}"
+  with_items:
+    - { file: "{{ cfssl_root_prefix }}ca-key.pem", mode: 400 }
+    - { file: "{{ cfssl_root_prefix }}ca.csr", mode: 444 }
+    - { file: "{{ cfssl_root_prefix }}ca.pem", mode: 444 }
+    

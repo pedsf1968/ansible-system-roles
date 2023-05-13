@@ -1,0 +1,30 @@
+---
+# vars file for cfssl-create-sub-ca
+# administrator parameters
+cfssl_admin_user_name: "{{ ca_admin_user_name }}"
+cfssl_admin_user_group: "{{ ca_admin_user_group }}"
+cfssl_passfile_owner: "{{ cfssl_admin_user_name }}"
+cfssl_passfile_group: "{{ cfssl_admin_user_group }}"
+
+# Directories
+cfssl_ca_directory: "{{ ca_directory }}/cfssl"
+
+cfssl_root_prefix: "root-"
+cfssl_root_directory: "{{ cfssl_ca_directory }}/{{ cfssl_root_prefix }}ca"
+
+cfssl_sub_prefix: "sub-"
+cfssl_sub_directory: "{{ cfssl_ca_directory }}/{{ cfssl_sub_prefix }}ca"
+
+# Certificate parameters
+cfssl_certificate_long_expiry:  "87600h"
+cfssl_certificate_short_expiry:  "8760h"
+cfssl_certificate_key_long_size: "{{ ca_certificate_long_size }}"
+cfssl_certificate_key_short_size: "{{ ca_certificate_short_size }}"
+cfssl_certificate_key_algo: "rsa"
+cfssl_country: "{{ ca_country }}"
+cfssl_state: "{{ ca_state }}"
+cfssl_locality: "{{ ca_locality }}"
+cfssl_organization_name: "{{ ca_organization_name }}"
+cfssl_organizational_unit: "{{ ca_organizational_unit }}"
+cfssl_common_name: "{{ ca_common_name }}"
+cfssl_email_address: "{{ ca_email_address }}"

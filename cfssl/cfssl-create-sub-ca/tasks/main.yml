@@ -1,0 +1,33 @@
+---
+# tasks file for cfssl-create-sub-ca
+- name: "Generate cfssl configuration"
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "{{ cfssl_sub_directory }}/{{ item }}"
+    owner: "{{ cfssl_admin_user_name }}"
+    group: "{{ cfssl_admin_user_group }}"
+    mode: "0600"
+  with_items:
+    - "cfssl.json" 
+    - "{{ cfssl_sub_prefix}}ca.json"
+
+- name: "Generate key and CSR for Intermediate"
+  ansible.builtin.shell: cfssl gencert -initca {{ cfssl_sub_prefix}}ca.json | cfssljson -bare {{ cfssl_sub_prefix}}ca
+  args:
+    chdir: "{{ cfssl_sub_directory }}"
+
+- name: "Sign intermediate certificate with Root CA"
+  ansible.builtin.shell: cfssl sign -ca {{ cfssl_root_directory }}/{{ cfssl_root_prefix}}ca.pem -ca-key {{ cfssl_root_directory }}/{{ cfssl_root_prefix}}ca-key.pem -config cfssl.json -profile intermediate_ca {{ cfssl_sub_prefix}}ca.csr | cfssljson -bare {{ cfssl_sub_prefix}}ca
+  args:
+    chdir: "{{ cfssl_sub_directory }}"
+
+- name: "Change certs owner and mode"
+  ansible.builtin.file:
+    path: "{{ cfssl_sub_directory }}/{{ item.file }}"
+    owner: "{{ cfssl_admin_user_name }}"
+    group: "{{ cfssl_admin_user_group }}"
+    mode: "{{ item.mode }}"
+  with_items:
+    - { file: "{{ cfssl_sub_prefix }}ca-key.pem", mode: 400 }
+    - { file: "{{ cfssl_sub_prefix }}ca.csr", mode: 444 }
+    - { file: "{{ cfssl_sub_prefix }}ca.pem", mode: 444 }

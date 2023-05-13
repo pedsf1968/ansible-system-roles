@@ -1,0 +1,76 @@
+---
+# Root CA and Sub CA server install
+
+- name: "Gather facts"
+  hosts: ["admin","security"]
+  gather_facts: true
+
+######################################################################## UPDATE
+- name: "Update system and set FireWall rules"
+  hosts: ["security"]
+  become: yes
+  gather_facts: false
+  vars:
+    ufw_allow_openssh_src: "{{ hostvars['isa-server'].ansible_default_ipv4.address }}"
+    ufw_allow_openssh_dest: "{{ ansible_host }}"
+    ufw_enable_policy: reject
+  roles:
+    #- role: "system/nala/nala-update"
+    #- role: "system/nala/nala-upgrade"
+    #- role: "system/ufw/ufw-allow-openssh"
+    #- role: "system/ufw/ufw-enable"
+
+############################################################### CREATE CA ADMIN
+- name: "Create CA admin"
+  hosts: ["security"]
+  become: yes
+  gather_facts: false
+  vars:
+    create_group_name: "{{ ca_admin_user_group }}"
+    create_group_gid: "{{ ca_admin_user_gid }}"
+    create_group_system: true
+    create_user_name: "{{ ca_admin_user_name }}"
+    create_user_uid: "{{ ca_admin_user_uid }}"
+    create_user_comment: "{{ ca_admin_user_comment }}"
+    create_home: true
+    create_user_shell: "/bin/bash"
+    create_user_system: true
+  roles:
+    #- role: "user/group-create"
+    #- role: "user/user-create"
+
+############################################################### ROOT CA INSTALL
+- name: "Generate passfile for Root CA"
+  hosts: ["root-ca"]
+  become: yes
+  gather_facts: false
+  vars:
+    cfssl_destination_directory: "{{ cfssl_root_directory }}"
+    cfssl_server_type: "root"
+  roles:
+    - role: "system/cfssl/cfssl-server-init"
+    - role: "system/cfssl/cfssl-create-root-ca"
+
+################################################################ SUB CA INSTALL
+- name: "Generate passfile for Sub CA"
+  hosts: ["root-ca"]
+  become: yes
+  gather_facts: false
+  vars:
+    cfssl_destination_directory: "{{ cfssl_sub_directory }}"
+    cfssl_server_type: "sub"
+  roles:
+    - role: "system/cfssl/cfssl-server-init"
+    - role: "system/cfssl/cfssl-create-sub-ca"
+    - role: "system/cfssl/cfssl-pull-sub-ca-certs"
+    
+- name: "Coopy certs to Sub CA"
+  hosts: ["sub-ca"]
+  become: yes
+  gather_facts: false
+  vars:
+    cfssl_destination_directory: "{{ cfssl_sub_directory }}"
+    cfssl_server_type: "sub"
+  roles:
+    - role: "system/cfssl/cfssl-server-init"
+    - role: "system/cfssl/cfssl-push-sub-ca-certs"

@@ -2,5 +2,5 @@
 # tasks file for openssl-ca-create
 - name: "Remove all configuration"
   ansible.builtin.file:
-    path: "{{ openssl_ca_directory }}"
+    path: "{{ openssl_root_directory }}"
     state: absent

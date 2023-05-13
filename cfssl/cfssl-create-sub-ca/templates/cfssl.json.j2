@@ -1,0 +1,52 @@
+{
+  "signing": {
+    "default": {
+      "expiry": "{{ cfssl_certificate_long_expiry }}"
+    },
+    "profiles": {
+      "intermediate_ca": {
+        "expiry": "{{ cfssl_certificate_long_expiry }}",
+        "ca_constraint": {
+            "is_ca": true,
+            "max_path_len": 0, 
+            "max_path_len_zero": true
+        },
+        "usages": [
+            "signing",
+            "digital signature",
+            "key encipherment",
+            "cert sign",
+            "crl sign",
+            "server auth",
+            "client auth"
+        ]
+      },
+      "server": {
+        "expiry": "{{ cfssl_certificate_short_expiry }}",
+        "usages": [
+          "signing",
+          "key encipherment",
+          "server auth"
+        ]
+      },
+      "peer": {
+        "expiry": "{{ cfssl_certificate_short_expiry }}",
+        "usages": [
+            "signing",
+            "key encipherment", 
+            "server auth",
+            "client auth"
+        ]
+      },
+      "client": {
+        "expiry": "{{ cfssl_certificate_short_expiry }}",
+        "usages": [
+          "signing",
+          "digital signature",
+          "key encipherment", 
+          "client auth"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+---
+# vars file for cfssl-pull-sub-ca-certs
+
+# administrator parameters
+cfssl_admin_user_name: "{{ ca_admin_user_name }}"
+cfssl_admin_user_group: "{{ ca_admin_user_group }}"
+cfssl_passfile_owner: "{{ cfssl_admin_user_name }}"
+cfssl_passfile_group: "{{ cfssl_admin_user_group }}"
+
+# Directories
+cfssl_local_directory: /home/ansible/ca/cfssl
+
+cfssl_ca_directory: "{{ ca_directory }}/cfssl"
+
+cfssl_sub_prefix: "sub-"
+cfssl_sub_directory: "{{ cfssl_ca_directory }}/{{ cfssl_sub_prefix }}ca"

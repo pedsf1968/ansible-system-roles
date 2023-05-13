@@ -1,0 +1,32 @@
+---
+# Create certificates on Sub CA and move files to each servers
+
+- name: "Gather facts"
+  hosts: ["admin","sub-ca","etcd_nodes"]
+  gather_facts: true
+
+###################################################### GENERETE CERTS ON SUB CA
+- name: "Generate Certificate on Sub CA"
+  hosts: ["sub-ca"]
+  become: yes
+  gather_facts: false
+  vars:
+    cfssl_hosts: "{{ groups['etcd_nodes'] }}"
+    cfssl_certificate_names: ["server"]
+    cfssl_certificate_type: "server"
+  roles:
+    - role: "system/cfssl/cfssl-create-certs"
+    - role: "system/cfssl/cfssl-pull-certs"    
+
+#################################################### MOVE CERTS ON EACH SERVERS
+- name: "Copy certificates on hosts"
+  hosts: ["etcd_nodes"]
+  become: yes
+  gather_facts: false
+  vars:
+    cfssl_certificate_names: ["server"]
+    cfssl_remote_directory: "/etc/etcd/pki"
+    cfssl_remote_owner: "etcd"
+    cfssl_remote_group: "etcd"
+  roles:
+    - role: "system/cfssl/cfssl-push-certs"

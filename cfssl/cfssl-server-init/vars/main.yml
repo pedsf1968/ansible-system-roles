@@ -1,0 +1,29 @@
+---
+# vars file for cfssl-server-init
+cfssl_version: "1.6.4"
+cfssl_archive: "cfssl_{{ cfssl_version }}_linux_amd64"
+cfssljson_archive: "cfssljson_{{ cfssl_version }}_linux_amd64"
+cfssl_certinfo_archive: "cfssl-certinfo_{{ cfssl_version }}_linux_amd64"
+
+# choose either URL
+github_url: "https://github.com/cloudflare/cfssl/releases/download/v{{ cfssl_version }}"
+cfssl_download_url: "{{ github_url }}/{{ cfssl_archive }}"
+cfssljson_download_url: "{{ github_url }}/{{ cfssljson_archive }}"
+cfssl_certinfo_download_url: "{{ github_url }}/{{ cfssl_certinfo_archive }}"
+
+# administrator parameters
+cfssl_admin_user_name: "{{ ca_admin_user_name }}"
+cfssl_admin_user_group: "{{ ca_admin_user_group }}"
+cfssl_passfile_owner: "{{ cfssl_admin_user_name }}"
+cfssl_passfile_group: "{{ cfssl_admin_user_group }}"
+
+# Directories
+cfssl_install_directory: /usr/local/bin
+
+cfssl_ca_directory: "{{ ca_directory }}/cfssl"
+
+cfssl_root_prefix: "root-"
+cfssl_root_directory: "{{ cfssl_ca_directory }}/{{ cfssl_root_prefix }}ca"
+
+cfssl_sub_prefix: "sub-"
+cfssl_sub_directory: "{{ cfssl_ca_directory }}/{{ cfssl_sub_prefix }}ca"

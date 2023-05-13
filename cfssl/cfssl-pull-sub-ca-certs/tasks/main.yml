@@ -1,0 +1,27 @@
+---
+# tasks file for cfssl-pull-sub-ca-certs
+- name: "Create directory to backup certs on localhost"
+  ansible.builtin.file:
+    path: "{{ cfssl_local_directory }}/{{ cfssl_sub_prefix }}ca"
+    state: directory
+    owner: "{{ admin_username }}"
+    group: "{{ admin_username }}"
+    mode: '0700'
+  register: local_dir
+  delegate_to: localhost
+
+- name: "Fetch Sub CA certs files"
+  ansible.builtin.fetch:
+    src: "{{ cfssl_sub_directory}}/{{ item }}"
+    dest: "{{ cfssl_local_directory }}/{{ cfssl_sub_prefix }}ca/{{ item }}"
+    owner: "{{ admin_username }}"
+    group: "{{ admin_username }}"
+    mode: '0400'
+    flat: yes
+  with_items:
+    - "cfssl.json"
+    - "{{ cfssl_sub_prefix }}ca.csr"
+    - "{{ cfssl_sub_prefix }}ca.json"
+    - "{{ cfssl_sub_prefix }}ca-key.pem"
+    - "{{ cfssl_sub_prefix }}ca.pem"
+    

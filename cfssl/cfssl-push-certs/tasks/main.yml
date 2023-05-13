@@ -1,0 +1,51 @@
+---
+# tasks file for cfssl-push-certs
+
+- name: "Remove old certs directory"
+  ansible.builtin.file:
+    path: "{{ cfssl_remote_directory }}"
+    state: absent
+
+- name: "Create directory for certs"
+  ansible.builtin.file:
+    path: "{{ cfssl_remote_directory }}"
+    state: directory
+    owner: "{{ cfssl_remote_owner }}"
+    group: "{{ cfssl_remote_group }}"
+    mode: '0700'
+
+- name: "Copy key files"
+  ansible.builtin.copy:
+    src: "{{ cfssl_local_directory }}/{{ ansible_hostname }}/{{ item }}-key.pem"
+    dest: "{{ cfssl_remote_directory}}/{{ item }}-key.pem"
+    owner: "{{ cfssl_remote_owner }}"
+    group: "{{ cfssl_remote_group }}"
+    mode: '0400'
+  with_items: "{{ cfssl_certificate_names }}"
+
+- name: "Copy certificates"
+  ansible.builtin.copy:
+    src: "{{ cfssl_local_directory }}/{{ ansible_hostname }}/{{ item }}.pem"
+    dest: "{{ cfssl_remote_directory}}/{{ item }}.pem"
+    owner: "{{ cfssl_remote_owner }}"
+    group: "{{ cfssl_remote_group }}"
+    mode: '0444'
+  with_items: "{{ cfssl_certificate_names }}"
+
+- name: "Copy key files"
+  ansible.builtin.copy:
+    src: "{{ cfssl_local_directory }}/{{ ansible_hostname }}/{{ cfssl_sub_prefix }}ca.pem"
+    dest: "{{ cfssl_remote_directory}}/{{ cfssl_sub_prefix }}ca.pem"
+    owner: "{{ cfssl_remote_owner }}"
+    group: "{{ cfssl_remote_group }}"
+    mode: '0444'
+
+
+- name: "Remove backup certs on localhost"
+  ansible.builtin.file:
+    path: "{{ cfssl_local_directory }}/{{ ansible_hostname }}"
+    state: absent
+  register: local_dir
+  delegate_to: localhost
+ 
+

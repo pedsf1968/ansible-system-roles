@@ -1,0 +1,46 @@
+---
+# tasks file for cfssl-pull-certs
+- name: "Create directory to backup certs on localhost"
+  ansible.builtin.file:
+    path: "{{ cfssl_local_directory }}/{{ item }}"
+    state: directory
+    owner: "{{ admin_username }}"
+    group: "{{ admin_username }}"
+    mode: '0700'
+  register: local_dir
+  delegate_to: localhost
+  with_items: "{{ cfssl_hosts }}"
+
+- name: "Fetch key files"
+  ansible.builtin.fetch:
+    src: "{{ cfssl_ca_directory}}/{{ item.0 }}/{{ item.1 }}-key.pem"
+    dest: "{{ cfssl_local_directory }}/{{ item.0 }}/{{ item.1 }}-key.pem"
+    owner: "{{ admin_username }}"
+    group: "{{ admin_username }}"
+    mode: '0400'
+    flat: yes
+  with_nested:
+    - "{{ cfssl_hosts }}"
+    - "{{ cfssl_certificate_names }}"
+
+- name: "Fetch certificates files"
+  ansible.builtin.fetch:
+    src: "{{ cfssl_ca_directory}}/{{ item.0 }}/{{ item.1 }}.pem"
+    dest: "{{ cfssl_local_directory }}/{{ item.0 }}/{{ item.1 }}.pem"
+    owner: "{{ admin_username }}"
+    group: "{{ admin_username }}"
+    mode: '0444'
+    flat: yes
+  with_nested:
+    - "{{ cfssl_hosts }}"
+    - "{{ cfssl_certificate_names }}"
+
+- name: "Fetch intermediate cert"
+  ansible.builtin.fetch:
+    src: "{{ cfssl_sub_directory }}/{{ cfssl_sub_prefix }}ca.pem"
+    dest: "{{ cfssl_local_directory }}/{{ item }}/{{ cfssl_sub_prefix }}ca.pem"
+    owner: "{{ admin_username }}"
+    group: "{{ admin_username }}"
+    mode: '0444'
+    flat: yes
+  with_items: "{{ cfssl_hosts }}"

@@ -1,0 +1,20 @@
+{
+  "CN": "{{ cfssl_root_prefix }}ca.{{ domain_name }}",
+  "hosts": [
+             "{{ ansible_hostname }}",
+             "{{ ansible_hostname }}.{{ domain_name }}"
+    ],
+  "key": {
+    "algo": "{{ cfssl_certificate_key_algo }}",
+    "size": {{ cfssl_certificate_key_long_size }}
+  },
+  "names": [
+    {
+      "C": "{{ cfssl_country }}",
+      "ST": "{{ cfssl_state }}",
+      "L": "{{ cfssl_locality }}",
+      "O":  "{{ cfssl_organization_name }}",
+      "OU": "{{ cfssl_organizational_unit }}"
+    }
+  ]
+}

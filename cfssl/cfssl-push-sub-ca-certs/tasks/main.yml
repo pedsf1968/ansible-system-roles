@@ -1,0 +1,25 @@
+---
+# tasks file for cfssl-push-sub-ca-certs
+
+- name: "Copy CA certs files"
+  ansible.builtin.copy:
+    src: "{{ cfssl_local_directory }}/{{ cfssl_sub_prefix }}ca/{{ item.file }}"
+    dest: "{{ cfssl_sub_directory}}/{{ item.file }}"
+    owner: "{{ cfssl_admin_user_name }}"
+    group: "{{ cfssl_admin_user_group }}"
+    mode: "{{ item.mode }}"
+  with_items:
+    - { file: "cfssl.json", mode: 400 }
+    - { file: "{{ cfssl_sub_prefix }}ca.csr", mode: 644 }
+    - { file: "{{ cfssl_sub_prefix }}ca.json", mode: 644 }
+    - { file: "{{ cfssl_sub_prefix }}ca-key.pem", mode: 400 }
+    - { file: "{{ cfssl_sub_prefix }}ca.pem", mode: 444 }
+
+    
+- name: "Remove backup certs on localhost"
+  ansible.builtin.file:
+    path: "{{ cfssl_local_directory }}/{{ cfssl_sub_prefix }}ca"
+    state: absent
+  register: local_dir
+  delegate_to: localhost
+

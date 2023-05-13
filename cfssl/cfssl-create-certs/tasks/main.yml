@@ -1,0 +1,60 @@
+---
+# tasks file for cfssl-push-sub-ca-certs
+
+- name: "Create directories for certs"
+  ansible.builtin.file:
+    path: "{{ cfssl_ca_directory }}/{{ item }}"
+    state: directory
+    owner: "{{ cfssl_admin_user_name }}"
+    group: "{{ cfssl_admin_user_group }}"
+    mode: '0700'
+  with_items: "{{ cfssl_hosts }}"
+
+- name: "Generate cfssl configuration"
+  ansible.builtin.template:
+    src: "config.json.j2"
+    dest: "{{ cfssl_ca_directory }}/{{ item.0 }}/{{ item.1 }}.json"
+    owner: "{{ cfssl_admin_user_name }}"
+    group: "{{ cfssl_admin_user_group }}"
+    mode: "0600"
+  with_nested:
+    - "{{ cfssl_hosts }}"
+    - "{{ cfssl_certificate_names }}"
+
+- name: "Sign certificate with intermediate CA"
+  ansible.builtin.shell: cfssl gencert -ca {{ cfssl_sub_directory }}/{{ cfssl_sub_prefix}}ca.pem -ca-key {{ cfssl_sub_directory }}/{{ cfssl_sub_prefix}}ca-key.pem -config cfssl.json -profile={{ cfssl_certificate_type }}  {{ cfssl_ca_directory }}/{{ item.0 }}/{{ item.1 }}.json | cfssljson -bare {{ cfssl_ca_directory }}/{{ item.0 }}/{{ item.1}}
+  args:
+    chdir: "{{ cfssl_sub_directory }}"
+  with_nested:
+    - "{{ cfssl_hosts }}"
+    - "{{ cfssl_certificate_names }}"
+
+- name: "Change certs owner and mode"
+  ansible.builtin.file:
+    path: "{{ cfssl_ca_directory }}/{{ item.0 }}/{{ item.1}}-key.pem"
+    owner: "{{ cfssl_admin_user_name }}"
+    group: "{{ cfssl_admin_user_group }}"
+    mode: 400
+  with_nested:
+    - "{{ cfssl_hosts }}"
+    - "{{ cfssl_certificate_names }}"
+
+- name: "Change certs owner and mode"
+  ansible.builtin.file:
+    path: "{{ cfssl_ca_directory }}/{{ item.0 }}/{{ item.1}}.csr"
+    owner: "{{ cfssl_admin_user_name }}"
+    group: "{{ cfssl_admin_user_group }}"
+    mode: 444
+  with_nested:
+    - "{{ cfssl_hosts }}"
+    - "{{ cfssl_certificate_names }}"
+
+- name: "Change certs owner and mode"
+  ansible.builtin.file:
+    path: "{{ cfssl_ca_directory }}/{{ item.0 }}/{{ item.1}}.pem"
+    owner: "{{ cfssl_admin_user_name }}"
+    group: "{{ cfssl_admin_user_group }}"
+    mode: 444
+  with_nested:
+    - "{{ cfssl_hosts }}"
+    - "{{ cfssl_certificate_names }}"
