@@ -1,0 +1,7 @@
+---
+# tasks file for cfssl-remove-certs
+
+- name: "Remove certs directory"
+  ansible.builtin.file:
+    path: "{{ cfssl_remote_directory }}"
+    state: absent

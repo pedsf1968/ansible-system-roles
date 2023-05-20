@@ -1,0 +1,14 @@
+---
+
+# Task to activate parameters in sysctl.conf
+- name: "Add parameters to sysctl.conf"
+  ansible.posix.sysctl:
+    name: "{{ item }}"
+    value: '1'
+    state: present
+    reload: no
+  with_items: "{{ sysctl_parameters }}"
+
+- name: "Reload sysctl"
+  shell: sysctl -p --system
+

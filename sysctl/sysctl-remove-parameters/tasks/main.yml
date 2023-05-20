@@ -1,0 +1,13 @@
+---
+
+# Task to remove parameters in sysctl.conf
+- name: "Add parameters to sysctl.conf"
+  ansible.posix.sysctl:
+    name: "{{ item }}"
+    state: absent
+    reload: no
+  with_items: "{{ sysctl_parameters }}"
+
+- name: "Reload sysctl"
+  shell: sysctl -p --system
+

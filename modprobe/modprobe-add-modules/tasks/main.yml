@@ -1,0 +1,13 @@
+---
+
+# tasks file to load kernel modules and restart
+- name: "Load kernel modules"
+  community.general.modprobe:
+    name: "{{ item }}"
+    state: present
+    persistent: present
+  with_items: "{{ modprobe_modules}}"
+
+- name: "Reload sysctl"
+  shell: sysctl -p --system
+
