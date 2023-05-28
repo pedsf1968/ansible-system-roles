@@ -5,13 +5,14 @@
   hosts: ["admin","sub-ca","etcd_nodes"]
   gather_facts: true
 
-###################################################### GENERETE CERTS ON SUB CA
+###################################################### GENERATE CERTS ON SUB CA
 - name: "Generate Certificate on Sub CA"
   hosts: ["sub-ca"]
   become: yes
   gather_facts: false
   vars:
-    cfssl_hosts: "{{ groups['etcd_nodes'] }}"
+    #cfssl_hosts: "{{ groups['network_servers'] }}"
+    cfssl_hosts: ['vcenter']
     cfssl_certificate_names: ["server"]
     cfssl_certificate_type: "server"
   roles:
@@ -29,4 +30,4 @@
     cfssl_remote_owner: "etcd"
     cfssl_remote_group: "etcd"
   roles:
-    - role: "system/cfssl/cfssl-push-certs"
+    #- role: "system/cfssl/cfssl-push-certs"
