@@ -1,0 +1,8 @@
+---
+# tasks file to remove common packages
+- name: "Remove common packages"
+  package:
+    name: "{{ apt_common_packages }}"
+    state: "{{ apt_state }}"
+    update_cache: "{{ apt_update_cache }}"
+...

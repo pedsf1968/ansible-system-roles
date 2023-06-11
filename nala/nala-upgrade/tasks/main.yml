@@ -1,4 +1,5 @@
 ---
-# tasks file for Nala upgrade command
-- name: "Nala upgrade"
-  ansible.builtin.command: nala upgrade -y
+# tasks file for nala-upgrade
+  - import_tasks: update.yml
+  - import_tasks: upgrade.yml
+...

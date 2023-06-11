@@ -1,7 +1,0 @@
----
-# Packages update with nala
-- name: "Lanch nala update"
-  hosts: "all"
-  become: yes
-  roles:
-  - role: "system/nala/nala-update"

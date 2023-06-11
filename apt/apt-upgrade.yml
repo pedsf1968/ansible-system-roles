@@ -5,5 +5,5 @@
     become: yes
     gather_facts: true
     roles:
-      - role: "system/nala/nala-upgrade"
+      - role: "system/apt/apt-upgrade"
 ...

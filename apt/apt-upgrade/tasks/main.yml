@@ -1,0 +1,5 @@
+---
+# tasks file for apt-upgrade
+- import_tasks: upgrade.yaml
+- import_tasks: clean.yaml
+...

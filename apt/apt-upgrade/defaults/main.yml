@@ -1,0 +1,4 @@
+---
+# defaults file for apt-upgrade
+apt_cache_valid_time: 86400
+...

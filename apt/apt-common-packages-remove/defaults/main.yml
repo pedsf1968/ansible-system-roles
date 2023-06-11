@@ -1,0 +1,20 @@
+---
+# defaults file for apt-common-packages-install
+apt_state: absent
+apt_update_cache: true
+
+apt_common_packages:
+  - python3-pip
+  - nfs-common
+  - tree
+  - htop
+
+apt_network_packages:
+  - python3-pip
+  - nfs-common
+  - tree
+  - htop
+
+apt_admin_packages:
+  - sipcalc
+

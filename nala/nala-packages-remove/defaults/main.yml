@@ -1,0 +1,17 @@
+---
+# defaults file for nala-packages-remove
+  nala_common_packages:
+    - python3-pip
+    - nfs-common
+    - tree
+    - htop
+
+  nala_network_packages:
+    - python3-pip
+    - nfs-common
+    - tree
+    - htop
+
+  nala_admin_packages:
+    - sipcalc
+...

@@ -1,0 +1,8 @@
+---
+# tasks file to Remove packages for admin
+- name: "Remove packages for admin"
+  package:
+    name: "{{ apt_admin_packages }}"
+    state: "{{ apt_state }}"
+    update_cache: "{{ apt_update_cache }}"
+...

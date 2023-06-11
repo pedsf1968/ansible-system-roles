@@ -1,0 +1,8 @@
+---
+# tasks file for nala packageremove
+  - name: "Remove install"
+    package:
+      name: [ "nala" ]
+      state: absent
+      update_cache: "{{ nala_update_cache }}"
+...  

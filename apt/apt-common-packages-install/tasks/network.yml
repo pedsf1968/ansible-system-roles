@@ -1,0 +1,8 @@
+---
+# tasks file to install network packages
+  - name: "Install network packages"
+    package:
+      name: "{{ apt_network_packages }}"
+      state: "{{ apt_state }}"
+      update_cache: "{{ apt_update_cache }}"
+...

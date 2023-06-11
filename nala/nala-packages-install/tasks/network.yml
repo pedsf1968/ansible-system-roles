@@ -1,0 +1,5 @@
+---
+# tasks file to install network packages
+  - name: "Install network packages"
+      ansible.builtin.command: "nala install -y {{ nala_network_packages }}"
+...

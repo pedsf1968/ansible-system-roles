@@ -1,0 +1,5 @@
+---
+# tasks file to remove packages for admin
+  - name: "Remove packages for admin"
+    ansible.builtin.command: "nala remove -y {{ nala_admin_packages }}"
+...

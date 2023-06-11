@@ -1,0 +1,5 @@
+---
+# Upgrade packages with nala
+  - name: "Nala upgrade"
+    ansible.builtin.command: nala upgrade -y
+...

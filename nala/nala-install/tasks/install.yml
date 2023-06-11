@@ -1,0 +1,8 @@
+---
+# tasks file for nala package install
+  - name: "Package install"
+    package:
+      name: [ "nala" ]
+      state: latest
+      update_cache: "{{ nala_update_cache }}"
+...  

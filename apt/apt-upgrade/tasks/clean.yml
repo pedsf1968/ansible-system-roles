@@ -1,0 +1,7 @@
+---
+# tasks file for cleanning
+- name: "Remove dependencies that are no longer required"
+  apt:
+    autoremove: yes
+    autoclean: yes
+...

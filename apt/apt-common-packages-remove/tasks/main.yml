@@ -1,0 +1,8 @@
+---
+# tasks file for apt-common-packages-remove
+- import_task: common.yml
+
+- import_task: network.yml
+
+- import_task: admin.yml
+  when: inventory_hostname == "isa-server"
