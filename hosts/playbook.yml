@@ -1,0 +1,15 @@
+---
+# Set /etc/hosts configuration
+
+- name: "Configure /etc/hosts file"
+  hosts: 
+  - 'security'
+  - 'jenkins_masters'
+  - 'jenkins_slaves'
+  - 'templates'
+  - 'ETCD'
+  - 'K8S'
+  become: yes
+  gather_facts: true
+  roles:
+    - system/hosts

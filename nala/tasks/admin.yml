@@ -1,0 +1,11 @@
+---
+# tasks file to install admin packages with Nala
+  - name: Install packages for admin
+    ansible.builtin.command: 
+      argv:
+        - nala 
+        - install 
+        - -y 
+        - sipcalc
+    when: inventory_hostname == "isa-server"
+...  

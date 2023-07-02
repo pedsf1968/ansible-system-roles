@@ -1,5 +1,0 @@
----
-# tasks file to remove common packages
-  - name: "Remove common packages"
-    ansible.builtin.command: "nala remove -y {{ nala_common_packages }}"
-...

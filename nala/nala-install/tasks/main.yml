@@ -1,4 +1,0 @@
----
-# tasks file for nala-install
-  - import_task: install.yml
-...

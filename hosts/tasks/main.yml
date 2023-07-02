@@ -1,0 +1,7 @@
+---
+# tasks file for hosts
+  - name: "Generate /etc/hosts file"
+    ansible.builtin.template:
+      src: hosts.j2
+      dest: /etc/hosts
+      

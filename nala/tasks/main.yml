@@ -1,0 +1,23 @@
+---
+# tasks file for nala
+  - import_tasks: repository.yml
+    when: (nala_behavior == 'install') or (nala_behavior == 'remove')
+
+  - import_tasks: packages.yml
+    when: (nala_behavior == 'install') or (nala_behavior == 'remove')
+
+  - import_tasks: update.yml
+    when: (nala_behavior == 'install') or (nala_behavior == 'update')
+
+  - import_tasks: upgrade.yml
+    when: (nala_behavior == 'install') or (nala_behavior == 'upgrade')
+    
+  - import_tasks: common.yml
+    when: (nala_behavior == 'install')
+
+  - import_tasks: network.yml
+    when: (nala_behavior == 'install')
+
+  - import_tasks: admin.yml
+    when: (nala_behavior == 'install')
+...

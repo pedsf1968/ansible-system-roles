@@ -1,0 +1,11 @@
+---
+# Install nala, upgrade and upgrade packages
+  - name: Install nala, upgrade and upgrade packages
+    hosts: [ "all" ]
+    become: yes
+    gather_facts: true
+    vars:
+      nala_behavior: 'install'
+    roles:
+      - system/nala
+...

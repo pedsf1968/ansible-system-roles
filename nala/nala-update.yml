@@ -1,11 +1,11 @@
 ---
-# Update and upgrade all packages
-  - name: Update and upgrade all packages
+# Update all packages
+  - name: Update all packages
     hosts: [ "all" ]
     become: yes
     gather_facts: true
     vars:
-      nala_behavior: 'upgrade'
+      nala_behavior: 'update'
     roles:
       - system/nala
 ...

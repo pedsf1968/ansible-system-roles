@@ -1,5 +1,0 @@
----
-# tasks file for nala-upgrade
-  - import_tasks: update.yml
-  - import_tasks: upgrade.yml
-...

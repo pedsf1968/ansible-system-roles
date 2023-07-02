@@ -1,0 +1,11 @@
+---
+# tasks file to install network packages with Nala
+  - name: Install network packages
+    ansible.builtin.command: 
+      argv:
+        - nala 
+        - install 
+        - -y 
+        - net-tools
+        - nfs-common
+...  

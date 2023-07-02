@@ -1,0 +1,15 @@
+---
+# Task file to configure Nala repository
+  - name: "{{ 'Remove' if (nala_behavior == 'remove') else 'Add' }} key repository"
+    ansible.builtin.get_url:
+      url: "{{ nala_url}}/{{ nala_version}}.key"
+      dest: "{{ nala_key }}"
+    when: nala_behavior == 'install'
+
+  - name: "{{ 'Remove' if (nala_behavior == 'remove') else 'Add' }} Nala repository"
+    ansible.builtin.apt_repository:
+      repo: deb [signed-by={{ nala_key }} arch=amd64] {{ nala_url }}/ {{ nala_version }} main
+      filename: volian-archive-{{ nala_version }}
+      state: "{{ 'absent' if (nala_behavior == 'remove') else 'present' }}"
+      update_cache: true
+...

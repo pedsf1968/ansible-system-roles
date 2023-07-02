@@ -1,0 +1,7 @@
+---
+# tasks file for nala package install
+  - name: "{{ 'Remove' if (nala_behavior == 'remove') else 'Install' }} Nala"
+    package:
+      name: nala
+      state: "{{ 'absent' if (nala_behavior == 'remove') else 'present' }}"
+...  

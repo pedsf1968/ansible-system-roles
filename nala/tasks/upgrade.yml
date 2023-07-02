@@ -1,0 +1,11 @@
+---
+# Upgrade packages with nala
+  - name: "Nala upgrade"
+    ansible.builtin.command: 
+      argv:
+        - nala 
+        - upgrade 
+        - -y 
+        - --option Dpkg::Options::="--force-confnew"
+        - --autoremove
+...

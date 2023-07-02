@@ -1,5 +1,0 @@
----
-# tasks file to install packages for admin
-  - name: "Install packages for admin"
-    ansible.builtin.command: "nala install -y {{ nala_admin_packages }}"
-...
